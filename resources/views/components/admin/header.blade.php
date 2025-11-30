@@ -16,8 +16,8 @@
 
         <!-- Right Side Actions -->
         <div class="flex items-center space-x-4">
-            @include('components.partials.dark-mode-toggle')
-            @include('components.partials.user-menu')
+            @include('components.admin.dark-mode-toggle')
+            @include('components.admin.user-menu')
         </div>
     </div>
 </header>

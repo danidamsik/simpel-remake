@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <x-layouts.app title="Dashboard">
     <div x-data="dashboard()"
         class="min-h-screen p-0">
@@ -383,3 +384,8 @@
         });
     </script>
 </x-layouts.app>
+=======
+<x-layouts.admin title="Dashboard">
+    <p>ini halaman dashboard</p>
+</x-layouts.admin>
+>>>>>>> origin/main

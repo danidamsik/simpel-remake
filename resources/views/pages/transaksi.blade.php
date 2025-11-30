@@ -1,3 +1,3 @@
-<x-layouts.app title="Transaksi">
+<x-layouts.admin title="Transaksi">
      <p>Ini Halaman Transaksi</p>
-</x-layouts.app>
+</x-layouts.admin>
