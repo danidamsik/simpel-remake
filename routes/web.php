@@ -1,17 +1,29 @@
 <?php
 
-use App\Livewire\Pages\Dashboard;
+
 use Illuminate\Support\Facades\Route;
 
+Route::get('/dashboard', function() {
+    return view('pages.dashboard');
+});
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
- Route::get('/dashboard', Dashboard::class);
+Route::get('/pengajuan-kegiatan', function() {
+    return view('pages.pengajuan-kegiatan');
+});
+
+Route::get('/transaksi', function() {
+    return view('pages./transaksi');
+});
+
+Route::get('/laporan-rekap', function() {
+    return view('pages.laporan-rekap');
+});
+
+Route::get('/master-data', function() {
+    return view('pages.master-data');
+});
+
+Route::get('/profile', function() {
+    return view('pages.my-profile');
+});
+
