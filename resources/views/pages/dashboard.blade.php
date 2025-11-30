@@ -1,3 +1,3 @@
-<x-layouts.app title="Dashboard">
+<x-layouts.admin title="Dashboard">
     <p>ini halaman dashboard</p>
-</x-layouts.app>
+</x-layouts.admin>

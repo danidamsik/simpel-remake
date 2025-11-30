@@ -1,3 +1,3 @@
-<x-layouts.app title="Master Data">
+<x-layouts.admin title="Master Data">
      <p>Ini Halaman master data</p>
-</x-layouts.app>
+</x-layouts.admin>

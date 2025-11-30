@@ -1,3 +1,3 @@
-<x-layouts.app title="Profile">
+<x-layouts.admin title="Profile">
      <p>Ini Halaman Profile</p>
-</x-layouts.app>
+</x-layouts.admin>
