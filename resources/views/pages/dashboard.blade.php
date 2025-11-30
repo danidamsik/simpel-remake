@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-<x-layouts.app title="Dashboard">
+<x-layouts.admin title="Dashboard">
     <div x-data="dashboard()"
         class="min-h-screen p-0">
         <!-- Component Stat Cards -->
@@ -20,7 +19,6 @@
         <!-- Component Daftar LPJ Terlambat -->
         @livewire('dashboard.daftar-lpj-terlambat')
     </div>
-
 
     <script>
         document.addEventListener('alpine:init', () => {
@@ -383,9 +381,4 @@
             }));
         });
     </script>
-</x-layouts.app>
-=======
-<x-layouts.admin title="Dashboard">
-    <p>ini halaman dashboard</p>
 </x-layouts.admin>
->>>>>>> origin/main
