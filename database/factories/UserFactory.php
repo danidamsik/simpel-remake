@@ -23,22 +23,52 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        $namaIndonesia = [
+            'Ahmad Fadli',
+            'Siti Aisyah',
+            'Muhammad Rizki',
+            'Nurul Hidayah',
+            'Rizky Maulana',
+            'Putri Lestari',
+            'Dewi Kartika',
+            'Budi Santoso',
+            'Agus Pratama',
+            'Fajar Ramadhan',
+            'Intan Permata',
+            'Rina Oktaviani',
+            'Hendra Wijaya',
+            'Dian Pratiwi',
+            'Aditya Saputra',
+            'Nanda Febriani',
+        ];
+
         return [
-            'name' => fake()->name(),
+            'username' => fake()->unique()->randomElement($namaIndonesia),
             'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            'profile_path' => 'profile.jpg',
+            'role' => fake()->randomElement(['admin', 'Bendahara']),
         ];
     }
 
     /**
-     * Indicate that the model's email address should be unverified.
+     * Role admin
      */
-    public function unverified(): static
+    public function admin(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
+        return $this->state(fn() => [
+            'role' => 'admin',
+        ]);
+    }
+
+    /**
+     * Role Bendahara
+     */
+    public function bendahara(): static
+    {
+        return $this->state(fn() => [
+            'role' => 'Bendahara',
         ]);
     }
 }
