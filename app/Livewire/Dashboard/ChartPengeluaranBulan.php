@@ -6,6 +6,7 @@ use Livewire\Component;
 
 class ChartPengeluaranBulan extends Component
 {
+    
     public function render()
     {
         return view('livewire.dashboard.chart-pengeluaran-bulan');
