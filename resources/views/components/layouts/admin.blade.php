@@ -28,7 +28,7 @@
             @include('components.admin.header')
 
             <!-- Main Content Area -->
-            <main class="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 p-6 transition-colors duration-300">
+            <main class="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 p-8 transition-colors duration-300">
                 {{ $slot }}
             </main>
         </div>
