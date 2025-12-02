@@ -1,3 +1,5 @@
 <x-layouts.admin title="Laporan Dan Rekap">
-    <p>Ini Halaman Laporan Dan Rekap</p>
+    <div>
+       @livewire('laporan-rekap.filter-table')
+    </div>
 </x-layouts.admin>
