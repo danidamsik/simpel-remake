@@ -1,14 +1,5 @@
  <!-- Header Section -->
- <div">
-     <div class="mb-6">
-         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-             Laporan Dan Rekap
-         </h1>
-         <p class="text-gray-600 mt-1 dark:text-gray-300">
-             Kelola dan unduh laporan kegiatan organisasi
-         </p>
-     </div>
-
+ <div>
      <!-- Main Card: Filter & Table Combined -->
      <div class="bg-white dark:border-gray-700 dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200">
 
@@ -194,4 +185,4 @@
          </div>
 
      </div>
-     </div>
+ </div>
