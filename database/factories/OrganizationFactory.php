@@ -44,7 +44,6 @@ class OrganizationFactory extends Factory
             'lembaga' => fake()->randomElement($fakultas),
             'number_phone' => fake()->numerify('08##########'),
             'email' => fake()->unique()->companyEmail(),
-            'current_balance' => fake()->randomFloat(2, 0, 10000000),
             'logo_path' => null,
         ];
     }

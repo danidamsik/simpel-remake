@@ -23,7 +23,6 @@ class Organization extends Model
         'current_balance' => 'decimal:2',
     ];
 
-    // Relasi 1:1 dengan User (inverse)
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -51,5 +50,10 @@ class Organization extends Model
     public function expenses()
     {
         return $this->hasMany(Expense::class);
+    }
+
+    public function wallets()
+    {
+        return $this->hasMany(Wallet::class);
     }
 }
