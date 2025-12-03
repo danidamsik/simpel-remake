@@ -103,7 +103,7 @@
                             <!-- Action -->
                             <td class="py-4 px-6">
                                 <div class="flex items-center justify-center gap-2">
-                                    <button
+                                    <button onclick="openModalKegiatan()"
                                         class="px-4 py-2 bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-800 rounded-lg transition-colors text-xs font-semibold flex items-center gap-1.5 border border-blue-200 dark:border-blue-700">
                                         <i class="fas fa-eye text-xs"></i>
                                         Detail
@@ -116,4 +116,5 @@
             </table>
         </div>
     </div>
+    @include('livewire.dashboard.component.modal-ringkasan-saldo')
 </div>
