@@ -10,12 +10,11 @@ return new class extends Migration
     {
         Schema::create('organizations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->unique()->constrained('users')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('name');
             $table->string('lembaga');
             $table->string('number_phone');
             $table->string('email');
-            $table->decimal('current_balance', 15, 2)->default(0);
             $table->string('logo_path')->nullable();
             $table->timestamps();
         });

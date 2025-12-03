@@ -5,11 +5,12 @@ namespace Database\Seeders;
 use App\Models\Lpj;
 use App\Models\User;
 use App\Models\Period;
-use App\Models\Activity;
+use App\Models\Wallet;
 use App\Models\Expense;
+use App\Models\Activity;
 use App\Models\Proposal;
-use App\Models\Organization;
 use App\Models\ReminderLog;
+use App\Models\Organization;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -35,6 +36,11 @@ class DatabaseSeeder extends Seeder
         $organisasi = Organization::all();
 
         foreach ($organisasi as $org) {
+            
+            Wallet::factory()->create([
+                'organization_id' => $org->id,
+            ]);
+
             for ($i = 0; $i < 5; $i++) {
                 Proposal::factory()->create([
                     'organization_id' => $org->id

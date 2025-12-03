@@ -32,6 +32,6 @@ class User extends Authenticatable
     // Relasi 1:1 dengan Organization
     public function organization()
     {
-        return $this->hasOne(Organization::class);
+        return $this->hasMany(Organization::class);
     }
 }
