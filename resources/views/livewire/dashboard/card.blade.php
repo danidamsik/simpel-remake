@@ -10,7 +10,7 @@
                  </div>
                  <div>
                      <p class="text-gray-600 dark:text-gray-400 text-xs font-medium">Total Proposal</p>
-                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">24</h2>
+                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $totalProposals }}</h2>
                  </div>
              </div>
          </div>
@@ -24,7 +24,7 @@
                  </div>
                  <div>
                      <p class="text-gray-600 dark:text-gray-400 text-xs font-medium">Kegiatan Berjalan</p>
-                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">8</h2>
+                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $totalRunningActivities }}</h2>
                  </div>
              </div>
          </div>
@@ -38,7 +38,7 @@
                  </div>
                  <div>
                      <p class="text-gray-600 dark:text-gray-400 text-xs font-medium">LPJ Disetujui</p>
-                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">15</h2>
+                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $lpjApproved }}</h2>
                  </div>
              </div>
          </div>
@@ -52,7 +52,7 @@
                  </div>
                  <div>
                      <p class="text-gray-600 dark:text-gray-400 text-xs font-medium">LPJ Menunggu</p>
-                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">6</h2>
+                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $lpjPending }}</h2>
                  </div>
              </div>
          </div>
@@ -66,7 +66,8 @@
                  </div>
                  <div>
                      <p class="text-gray-600 dark:text-gray-400 text-xs font-medium">Total Pengeluaran</p>
-                     <h2 class="text-xl font-bold text-gray-900 dark:text-white">Rp 128.5Jt</h2>
+                     <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+                         {{ $this->formatCurrency($totalExpenses) }}</h2>
                  </div>
              </div>
          </div>
@@ -80,10 +81,10 @@
                  </div>
                  <div>
                      <p class="text-gray-600 dark:text-gray-400 text-xs font-medium">Total Pajak</p>
-                     <h2 class="text-xl font-bold text-gray-900 dark:text-white">Rp 12.8Jt</h2>
+                     <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ $this->formatCurrency($totalTax) }}
+                     </h2>
                  </div>
              </div>
          </div>
-
      </div>
  </div>

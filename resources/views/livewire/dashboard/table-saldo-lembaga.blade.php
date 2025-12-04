@@ -37,10 +37,6 @@
                             Dana Sekarang
                         </th>
                         <th
-                            class="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-200 text-sm uppercase tracking-wider">
-                            Status LPJ
-                        </th>
-                        <th
                             class="text-center py-4 px-6 font-semibold text-gray-700 dark:text-gray-200 text-sm uppercase tracking-wider">
                             Action
                         </th>
@@ -85,19 +81,6 @@
                                     <span class="text-green-600 dark:text-green-400 font-bold text-sm"
                                         x-text="lembaga.danaSekarang"></span>
                                 </div>
-                            </td>
-
-                            <!-- Status LPJ -->
-                            <td class="py-4 px-6">
-                                <span
-                                    :class="lembaga.statusLPJ === 'Lengkap' ?
-                                        'bg-green-100 text-green-700 border border-green-200 dark:bg-green-900 dark:text-green-300 dark:border-green-700' :
-                                        'bg-amber-100 text-amber-700 border border-amber-200 dark:bg-amber-900 dark:text-amber-300 dark:border-amber-700'"
-                                    class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold">
-                                    <i :class="lembaga.statusLPJ === 'Lengkap' ? 'fas fa-check-circle' : 'fas fa-clock'"
-                                        class="mr-1.5 text-xs"></i>
-                                    <span x-text="lembaga.statusLPJ"></span>
-                                </span>
                             </td>
 
                             <!-- Action -->

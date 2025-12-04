@@ -1,0 +1,117 @@
+
+TASK COMPONENT table-saldo-lembaga = Done JIka selsai
+=========================================
+
+struktur data yg diterima :
+    $dataLembaga = [
+        [
+            'organization_name' => 'Nama Lembaga',
+            'total_funds_used' => 1000000,
+            'current_balance' => 5000000,
+            'activities' => [
+                [
+                    'activity_name' => 'Kegiatan 1',
+                    'start_date' => '2025-01-01',
+                    'end_date' => '2025-01-05',
+                    'location' => 'Palu',
+                    'funds_used' => 200000,
+                    'lpj_status' => 'approved'
+                ],
+                [
+                    'activity_name' => 'Kegiatan 2',
+                    'start_date'   => '2025-02-01',
+                    'end_date'     => '2025-02-03',
+                    'location'     => 'Donggala',
+                    'funds_used'   => 150000,
+                    'lpj_status'   => 'pending'
+                ]
+            ]
+        ],
+        [
+            'organization_name' => 'Nama Lembaga 2',
+            'total_funds_used'  => 750000,
+            'current_balance'  => 2500000,
+            'activities' => [
+                [
+                    'activity_name' => 'Kegiatan A',
+                    'start_date' => '2025-03-10',
+                    'end_date' => '2025-03-12',
+                    'location' => 'Sigi',
+                    'funds_used' => 300000,
+                    'lpj_status' => 'approved'
+                ]
+            ]
+        ]
+    ];
+
+task 1 
+    Tampilkan:
+    Nama Lembaga
+    Total Dana = total_funds_used + current_balance
+    dana terpakai
+    dana sekarang
+
+task 2
+    Saat Tombol Diklik:
+    Data activities dikirim ke modal menggunakan Alpine.js
+    Modal terbuka
+    Data aktivitas ditampilkan :
+    Nama kegiatan
+    Tanggal mulai – selesai
+    Lokasi
+    Dana terpakai
+    Status LPJ
+
+TASK COMPONENT kegiatan-berlangsung
+=========================================
+
+struktur data yg diterima :
+    $activities = [
+        [
+            'nama_kegiatan'     => 'Pelatihan Web Development',
+            'nama_organisasi'   => 'Himpunan Mahasiswa Informatika',
+            'tanggal_mulai'     => '2025-01-01',
+            'tanggal_selesai'   => '2025-01-10',
+            'penanggung_jawab'  => 'Ahmad Fauzy',
+        ],
+        [
+            'nama_kegiatan'     => 'Rapat Kerja Tahunan',
+            'nama_organisasi'   => 'BEM Fakultas Teknik',
+            'tanggal_mulai'     => '2025-01-05',
+            'tanggal_selesai'   => '2025-01-07',
+            'penanggung_jawab'  => 'Siti Rahma',
+        ],
+        [
+            'nama_kegiatan'     => 'Seminar Nasional IT',
+            'nama_organisasi'   => 'UKM Teknologi',
+            'tanggal_mulai'     => '2025-01-08',
+            'tanggal_selesai'   => '2025-01-09',
+            'penanggung_jawab'  => 'Muhammad Rizky',
+        ]
+    ];
+
+task 1:
+tampilkan pada component :
+Nama Kegiatan → nama_kegiatan
+Nama Organisasi → nama_organisasi
+Tanggal Mulai → tanggal_mulai
+Tanggal Selesai → tanggal_selesai
+Penanggung Jawab → penanggung_jawab
+
+TASK COMPONENT daftar-lpj-terlambat
+=========================================
+struktur data yg diterima :
+    $lpjTerlambat = [
+        'nama_kegiatan'    => nama kegiatan,
+        'nama_organisasi' =>  nama organisasi,
+        'tanggal_selesai' =>  tanggal selesai,
+    ]
+
+task 1:
+Tampilkan data diatas
+kondisikan jika tanggal selesai 1 minggu yg lalu tambahkan teks warning
+jika tanggal selesai 2 minggu yg lalu tambahkan teks danger
+
+TASK COMPONENT chart-pengeluaran-lembaga
+============================================
+task 1: modifikasi component ini agar bar chart ke samping

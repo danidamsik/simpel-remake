@@ -31,7 +31,7 @@
     @endphp
 
     @foreach($menuItems as $route => $item)
-        <a href="/{{ $route }}" 
+        <a href="/{{ $route }}" wire:navigate
            class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 nav-item
                   {{ $currentRoute === $route ? 
                      'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 shadow-sm' : 

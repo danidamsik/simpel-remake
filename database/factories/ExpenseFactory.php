@@ -26,7 +26,10 @@ class ExpenseFactory extends Factory
                 'Biaya transportasi panitia',
                 'Honor pemateri acara',
             ]),
-            'expense_date' => $this->faker->dateTimeBetween('-3 months', 'now'),
+            'expense_date' => $this->faker->dateTimeBetween(
+                now()->startOfYear(),
+                now()->endOfYear()
+            ),
             'tax_persentase' => $this->faker->randomElement([0, 5, 10, 11]), // PPN 11%, PPh 5% dst
             'tax_type' => $this->faker->optional()->randomElement(['PPN', 'PPh', 'PPH21', 'PPH22']),
             'proof_file' => 'proof/' . $this->faker->uuid() . '.jpg',
