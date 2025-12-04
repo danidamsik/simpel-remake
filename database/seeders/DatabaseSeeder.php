@@ -12,6 +12,7 @@ use App\Models\Proposal;
 use App\Models\ReminderLog;
 use App\Models\Organization;
 use Illuminate\Database\Seeder;
+use Database\Seeders\UpdateTable;
 
 class DatabaseSeeder extends Seeder
 {
@@ -75,5 +76,9 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
         }
+
+        $this->call([
+            UpdateTable::class,
+        ]);
     }
 }

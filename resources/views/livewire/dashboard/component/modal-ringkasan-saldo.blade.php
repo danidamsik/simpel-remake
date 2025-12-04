@@ -88,13 +88,6 @@
                                                 Status LPJ
                                             </div>
                                         </th>
-                                        <th class="px-6 py-4 text-left">
-                                            <div
-                                                class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                                                <i class="fas fa-sticky-note text-blue-500"></i>
-                                                Keterangan
-                                            </div>
-                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200/50 dark:divide-gray-700/50">
@@ -159,15 +152,6 @@
                                             </span>
                                         </td>
 
-                                        <td class="px-6 py-4">
-                                            <div class="flex items-start gap-2">
-                                                <i class="fas fa-file-alt text-gray-400 mt-0.5"></i>
-                                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                                    Semua dokumen LPJ telah lengkap dan divalidasi oleh bendahara
-                                                    lembaga.
-                                                </p>
-                                            </div>
-                                        </td>
                                     </tr>
 
                                     <!-- Kegiatan 2 -->
@@ -232,14 +216,7 @@
                                             </span>
                                         </td>
 
-                                        <td class="px-6 py-4">
-                                            <div class="flex items-start gap-2">
-                                                <i class="fas fa-file-alt text-gray-400 mt-0.5"></i>
-                                                <p class="text-sm text-gray-600 dark:text-gray-400">
-                                                    Dokumen LPJ sedang dalam proses validasi oleh bendahara lembaga.
-                                                </p>
-                                            </div>
-                                        </td>
+                                        
                                     </tr>
                                 </tbody>
                             </table>
