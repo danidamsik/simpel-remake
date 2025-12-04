@@ -1,14 +1,24 @@
 <!-- MODAL DETAIL PENGGUNAAN DANA - MODERN & LEBAR -->
-<div id="detailModal" class="fixed inset-0 z-50 overflow-y-auto hidden">
+<div x-data="detailModal()" x-init="init()" @open-detail-modal.window="open()" @keydown.escape.window="close()"
+    :class="{ 'hidden': !isOpen }" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
+    aria-modal="true">
+
     <!-- Overlay dengan animasi fade -->
-    <div id="detailModalOverlay"
-        class="fixed inset-0 bg-black/40 backdrop-blur-sm transition-all duration-500 ease-out opacity-0"></div>
+    <div x-show="isOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="close()"
+        class="fixed inset-0 bg-black/40 backdrop-blur-sm"></div>
 
     <!-- Modal Content -->
     <div class="flex min-h-full items-center justify-center p-4">
         <!-- Container dengan animasi -->
-        <div id="detailModalContainer"
-            class="relative w-full max-w-5xl transition-all duration-500 ease-out transform opacity-0 translate-y-8">
+        <div x-show="isOpen" x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 transform translate-y-4 sm:translate-y-0 sm:scale-95"
+            x-transition:enter-end="opacity-100 transform translate-y-0 sm:scale-100"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 transform translate-y-0 sm:scale-100"
+            x-transition:leave-end="opacity-0 transform translate-y-4 sm:translate-y-0 sm:scale-95"
+            class="relative w-full max-w-5xl">
             <!-- Modal Card -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden">
                 <!-- Header Modern -->
@@ -30,7 +40,7 @@
                                 </p>
                             </div>
                         </div>
-                        <button onclick="closeDetailModal()"
+                        <button @click="close()"
                             class="p-2.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200 hover:rotate-90">
                             <i class="fas fa-times text-xl"></i>
                         </button>
@@ -143,13 +153,11 @@
                                         <p class="text-lg font-semibold text-gray-900 dark:text-white">
                                             15 Maret 2024
                                         </p>
-                                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 flex items-center">
-                                        </p>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Card Bukti Pembayaran - DISAMAKAN DENGAN LAINNYA -->
+                            <!-- Card Bukti Pembayaran -->
                             <div
                                 class="bg-gradient-to-r from-indigo-50/80 to-indigo-100/50 dark:from-indigo-900/20 dark:to-indigo-800/20 border border-indigo-200/50 dark:border-indigo-800/30 rounded-xl p-5 hover:shadow-md transition-all duration-300 min-h-[140px]">
                                 <div class="h-full flex flex-col">
@@ -177,10 +185,19 @@
                                     </div>
                                     <!-- Tombol di bagian bawah card -->
                                     <div class="mt-auto">
-                                        <button onclick="openImagePreview('/images/brimo.jpg', 'brimo.jpg')"
+                                        <button
+                                            @click="$dispatch('open-image-preview', { 
+                                                    imageUrl: '/images/brimo.jpg', 
+                                                    fileName: 'brimo.jpg' 
+                                                })"
                                             class="w-auto px-3 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg text-sm font-medium transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-95 flex items-center justify-center group">
-                                            <i
-                                                class="fas fa-eye text-sm mr-1.5 group-hover:scale-110 transition-transform"></i>
+                                            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
                                             Lihat Foto
                                         </button>
                                     </div>
@@ -227,7 +244,7 @@
                         <div class="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2 mb-4 md:mb-0">
                         </div>
                         <div class="flex gap-3">
-                            <button onclick="closeDetailModal()"
+                            <button @click="close()"
                                 class="px-5 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg">
                                 <i class="fas fa-check mr-2"></i>
                                 Selesai
@@ -240,147 +257,24 @@
     </div>
 </div>
 
-<style>
-    /* Animasi untuk modal detail */
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @keyframes fadeOutDown {
-        from {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        to {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-        }
-
-        to {
-            opacity: 1;
-        }
-    }
-
-    @keyframes fadeOut {
-        from {
-            opacity: 1;
-        }
-
-        to {
-            opacity: 0;
-        }
-    }
-
-    .modal-enter {
-        animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    }
-
-    .modal-exit {
-        animation: fadeOutDown 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    }
-
-    .overlay-enter {
-        animation: fadeIn 0.3s ease-out forwards;
-    }
-
-    .overlay-exit {
-        animation: fadeOut 0.3s ease-out forwards;
-    }
-
-    /* Untuk tombol Lihat Foto */
-    #lihatFotoBtn {
-        padding: 0.625rem 1.5rem;
-        font-size: 0.875rem;
-    }
-</style>
-
 <script>
-    // =============================================
-    // FUNGSI UNTUK MODAL DETAIL
-    // =============================================
+    function detailModal() {
+        return {
+            isOpen: false,
 
-    function openDetailModal() {
-        const modal = document.getElementById('detailModal');
-        const overlay = document.getElementById('detailModalOverlay');
-        const container = document.getElementById('detailModalContainer');
+            init() {
+                // Inisialisasi event listeners jika diperlukan
+            },
 
-        modal.classList.remove('hidden');
-        overlay.classList.remove('overlay-exit');
-        container.classList.remove('modal-exit');
+            open() {
+                this.isOpen = true;
+                document.body.style.overflow = 'hidden';
+            },
 
-        void modal.offsetWidth;
-
-        overlay.classList.add('overlay-enter');
-        overlay.style.opacity = '1';
-
-        setTimeout(() => {
-            container.classList.add('modal-enter');
-            container.style.opacity = '1';
-            container.style.transform = 'translateY(0)';
-        }, 100);
-
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeDetailModal() {
-        const modal = document.getElementById('detailModal');
-        const overlay = document.getElementById('detailModalOverlay');
-        const container = document.getElementById('detailModalContainer');
-
-        container.classList.remove('modal-enter');
-        container.classList.add('modal-exit');
-        overlay.classList.remove('overlay-enter');
-        overlay.classList.add('overlay-exit');
-
-        setTimeout(() => {
-            modal.classList.add('hidden');
-            container.classList.remove('modal-exit');
-            container.style.transform = 'translateY(8px)';
-            container.style.opacity = '0';
-            overlay.classList.remove('overlay-exit');
-            overlay.style.opacity = '0';
-            document.body.style.overflow = 'auto';
-        }, 400);
-    }
-
-    // =============================================
-    // EVENT LISTENERS
-    // =============================================
-
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            // Cek modal detail
-            if (!document.getElementById('detailModal').classList.contains('hidden')) {
-                closeDetailModal();
+            close() {
+                this.isOpen = false;
+                document.body.style.overflow = 'auto';
             }
         }
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const detailOverlay = document.getElementById('detailModalOverlay');
-        if (detailOverlay) {
-            detailOverlay.addEventListener('click', closeDetailModal);
-        }
-    });
-
-    // =============================================
-    // FUNGSI GLOBAL
-    // =============================================
-    window.openDetailModal = openDetailModal;
-    window.closeDetailModal = closeDetailModal;
+    }
 </script>

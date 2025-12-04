@@ -1,4 +1,9 @@
-<div class="bg-white dark:bg-gray-800 rounded-xl shadow p-5 border border-gray-200 dark:border-gray-700">
+<div class="bg-white dark:bg-gray-800 rounded-xl shadow p-5 border border-gray-200 dark:border-gray-700"
+    x-data="{
+        openDetailModal() {
+            window.dispatchEvent(new CustomEvent('open-detail-modal'));
+        }
+    }">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <div>
             <h2 class="text-xl font-bold text-gray-800 dark:text-white">Daftar Transaksi</h2>
@@ -153,7 +158,7 @@
                         <div class="text-sm font-medium text-gray-900 dark:text-white">15 Jan 2023</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button onclick="openDetailModal()"
+                        <button @click="openDetailModal()"
                             class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3 flex items-center group">
                             <svg xmlns="http://www.w3.org/2000/svg"
                                 class="h-5 w-5 mr-1 group-hover:scale-110 transition-transform" fill="none"
@@ -196,7 +201,7 @@
                         <div class="text-sm font-medium text-gray-900 dark:text-white">22 Jan 2023</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button onclick="openDetailModal()"
+                        <button @click="openDetailModal()"
                             class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3 flex items-center group">
                             <svg xmlns="http://www.w3.org/2000/svg"
                                 class="h-5 w-5 mr-1 group-hover:scale-110 transition-transform" fill="none"
@@ -239,7 +244,7 @@
                         <div class="text-sm font-medium text-gray-900 dark:text-white">05 Feb 2023</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button onclick="openDetailModal()"
+                        <button @click="openDetailModal()"
                             class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3 flex items-center group">
                             <svg xmlns="http://www.w3.org/2000/svg"
                                 class="h-5 w-5 mr-1 group-hover:scale-110 transition-transform" fill="none"
