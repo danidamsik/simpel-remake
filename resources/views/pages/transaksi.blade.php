@@ -2,8 +2,9 @@
     <div class="p-4 md:p-6 space-y-6">
         <!-- Summary Cards -->
         @livewire('transaksi.card')
-        
+
         <!-- Filters & Table -->
         @livewire('transaksi.filter-table')
+        @include('livewire.transaksi.component.modal-detail')
     </div>
 </x-layouts.admin>
