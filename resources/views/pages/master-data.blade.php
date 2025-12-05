@@ -3,9 +3,7 @@
 
         <!-- Component 1: Tabs -->
         <div class="bg-white dark:bg-gray-800 dark:border-gray-700 rounded-xl shadow-sm border border-gray-200 mb-6">
-
             @livewire('master-data.active-tab')
-
             <!-- Content Area -->
             <div class="p-4 md:p-6 text-gray-900 dark:text-gray-100">
                 <!-- Tab Content: Data User -->
