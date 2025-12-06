@@ -1,4 +1,4 @@
-<div x-data="modalPeriodeModern()" @open-modal-periode.window="openModal()" x-cloak wire:ignore style="display: none;"
+<div x-data="modalPeriode()" @open-modal-periode.window="openModal()" x-cloak wire:ignore style="display: none;"
     x-show="true">
 
     <!-- Modal Overlay -->
@@ -235,7 +235,7 @@
     </div>
 
     <script>
-        function modalPeriodeModern() {
+        function modalPeriode() {
             return {
                 showModal: false,
                 isEditMode: false,
