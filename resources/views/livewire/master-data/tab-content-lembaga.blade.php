@@ -9,8 +9,8 @@
         </div>
 
         <!-- Button Tambah Lembaga -->
-        <button
-            class="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 transition-colors flex items-center justify-center gap-2">
+        <button @click="openModal()"
+            class="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 transition-colors flex items-center justify-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
@@ -107,9 +107,20 @@
                         </div>
                     </td>
                 </tr>
-
             </tbody>
-
         </table>
     </div>
+    @include('livewire.master-data.component.modal-form-lembaga')
 </div>
+
+<!-- TAMBAHKAN SCRIPT INI DI BAWAH -->
+<script>
+    // Script untuk membuat fungsi openModal() tersedia secara global
+    document.addEventListener('DOMContentLoaded', function() {
+        // Buat fungsi global openModal()
+        window.openModal = function() {
+            // Dispatch event ke modal
+            window.dispatchEvent(new CustomEvent('open-modal-lembaga'));
+        };
+    });
+</script>
