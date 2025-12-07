@@ -16,7 +16,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->date('expense_date');
             $table->decimal('tax_persentase', 5, 2)->default(0);
-            $table->string('tax_type')->nullable();
+            $table->enum('tax_type', ['PPh22', 'PPh23', 'Ppn']);
             $table->string('proof_file')->nullable();
             $table->timestamps();
         });
