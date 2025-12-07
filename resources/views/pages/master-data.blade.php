@@ -18,7 +18,6 @@
         </div>
     </div>
 
-
     <script>
         // Alpine.js Data
         document.addEventListener('alpine:init', () => {
