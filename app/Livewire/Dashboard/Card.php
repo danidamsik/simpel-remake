@@ -17,7 +17,13 @@ class Card extends Component
     public function mount()
     {
         $activePeriod = Period::where('status', true)->first();
-        $this->selectedPeriodId = $activePeriod?->id ?? Period::first()?->id;
+        if ($activePeriod) {
+            $this->selectedPeriodId = $activePeriod->id;
+        } else {
+            $firstPeriod = Period::first();
+            $this->selectedPeriodId = $firstPeriod ? $firstPeriod->id : null;
+        }
+
         $this->loadData();
     }
 
