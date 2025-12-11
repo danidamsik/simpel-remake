@@ -1,4 +1,4 @@
-<div class="sm:w-full lg:w-[60%]" x-data="chartComponent()" x-init="initChart()">
+<div class="sm:w-full lg:w-[90%] mx-auto" x-data="chartComponent()" x-init="initChart()">
     <div
         class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg pt-4 px-2 transition-colors duration-200">
         <div class="flex items-start justify-between mb-6 ml-5">
@@ -27,12 +27,27 @@
                 }).format(val);
             },
 
+            // Format untuk sumbu Y (singkat) - tanpa .0
+            formatYAxis(val) {
+                if (val >= 1000000000) {
+                    const formatted = (val / 1000000000);
+                    return 'Rp ' + (formatted % 1 === 0 ? formatted.toFixed(0) : formatted.toFixed(1)) + ' M';
+                } else if (val >= 1000000) {
+                    const formatted = (val / 1000000);
+                    return 'Rp ' + (formatted % 1 === 0 ? formatted.toFixed(0) : formatted.toFixed(1)) + ' Jt';
+                } else if (val >= 1000) {
+                    const formatted = (val / 1000);
+                    return 'Rp ' + (formatted % 1 === 0 ? formatted.toFixed(0) : formatted.toFixed(1)) + ' Rb';
+                } else if (val >= 100) {
+                    return 'Rp ' + val.toFixed(0);
+                }
+                return 'Rp ' + val;
+            },
+
             initChart() {
-                // Deteksi dark mode awal
                 this.checkDarkMode();
                 this.renderChart();
 
-                // Listen perubahan sistem
                 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
                     if (!('theme' in localStorage)) {
                         this.checkDarkMode();
@@ -40,7 +55,6 @@
                     }
                 });
 
-                // Listen perubahan class dark di HTML (SOLUSI UTAMA)
                 const observer = new MutationObserver(() => {
                     const newDarkState = document.documentElement.classList.contains('dark');
                     if (this.isDark !== newDarkState) {
@@ -66,7 +80,7 @@
                 return {
                     chart: {
                         type: 'line',
-                        height: 280,
+                        height: 350,
                         toolbar: {
                             show: false
                         },
@@ -109,8 +123,9 @@
                         }
                     },
                     yaxis: {
+                        tickAmount: 5, // Menambah jumlah label di sumbu Y
                         labels: {
-                            formatter: (val) => this.formatIDR(val),
+                            formatter: (val) => this.formatYAxis(val),
                             style: {
                                 colors: [textColor],
                                 fontSize: '12px'
