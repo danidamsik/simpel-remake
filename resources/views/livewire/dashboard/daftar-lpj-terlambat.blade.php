@@ -1,5 +1,34 @@
-<div
-    class="bg-white dark:bg-gray-900 text-slate-900 dark:text-slate-100 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+<div class="bg-white dark:bg-gray-900 text-slate-900 dark:text-slate-100 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm"
+    x-data="lpjTerlambatData()">
+
+    <!-- Notification Toast -->
+    <div x-cloak x-show="notification.show" x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
+        x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0"
+        x-transition:leave-end="opacity-0 translate-y-2" class="fixed top-4 right-4 z-[100] max-w-sm">
+        <div class="flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg"
+            :class="notification.type === 'success' ?
+                'bg-green-500 text-white' :
+                'bg-red-500 text-white'">
+            <!-- Success Icon -->
+            <svg x-show="notification.type === 'success'" class="w-5 h-5 flex-shrink-0" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <!-- Error Icon -->
+            <svg x-show="notification.type === 'error'" class="w-5 h-5 flex-shrink-0" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            <span x-text="notification.message" class="text-sm font-medium"></span>
+            <button @click="notification.show = false" class="ml-auto p-1 hover:bg-white/20 rounded transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
     <h3 class="text-lg font-semibold mb-4">Daftar LPJ Terlambat</h3>
 
     @if ($lpjTerlambat->isEmpty())
@@ -66,8 +95,7 @@
                                     <span class="text-slate-400">-</span>
                                 @endif
                             </td>
-
-                            {{-- ✅ STATUS TANPA BACKGROUND --}}
+                            
                             <td class="px-3 py-2 font-medium {{ $statusColor }}">
                                 {{ $status ?? '-' }}
                             </td>
@@ -85,32 +113,29 @@
                                     </button>
 
                                     <!-- Dropdown Menu -->
-                                    <div x-show="open" x-transition
-                                        class="absolute right-0 z-50 mt-1 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+                                    <div x-cloak x-show="open" x-transition
+                                        class="absolute right-0 z-50 -mt-24 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
 
                                         <!-- Kirim Pesan -->
-                                        <a href="https://wa.me/?text={{ urlencode(
-                                            'Halo ' .
-                                                $item->name .
-                                                ', kami mengingatkan bahwa LPJ untuk kegiatan "' .
-                                                $item->activity_name .
-                                                '" (' .
-                                                $item->lembaga .
-                                                ') belum diserahkan. Tenggat: ' .
-                                                $deadline->format('d M Y'),
-                                        ) }}"
-                                            target="_blank"
-                                            class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                                        <button
+                                            @click="open = false; openMessageModal({
+                                            activityId: {{ $item->activity_id }},
+                                            activityName: '{{ addslashes($item->activity_name) }}',
+                                            personResponsible: '{{ addslashes($item->person_responsible) }}',
+                                            whatsappNumber: '{{ $item->number_pr }}',
+                                            deadline: '{{ $deadline->format('d M Y') }}'
+                                        })"
+                                            class="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                             </svg>
                                             Kirim Pesan
-                                        </a>
+                                        </button>
 
                                         <!-- Lihat Logs -->
-                                        <button wire:click="showLogs({{ $item->activity_id }})"
+                                        <button @click="open = false; openLogs({{ $item->activity_id }})"
                                             class="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
@@ -128,4 +153,115 @@
             </table>
         </div>
     @endif
+    <!-- Modal Logs (Alpine.js driven) -->
+    @include('livewire.dashboard.component.modal-logs')
+
+    <!-- Modal Kirim Pesan (Alpine.js driven) -->
+    @include('livewire.dashboard.component.modal-message')
 </div>
+
+@script
+    <script>
+        Alpine.data('lpjTerlambatData', () => ({
+            // Modal Logs
+            showModal: false,
+            loading: false,
+            activityName: '',
+            logs: [],
+
+            async openLogs(activityId) {
+                this.loading = true;
+                this.showModal = true;
+                const result = await $wire.getLogs(activityId);
+                this.activityName = result.activityName;
+                this.logs = result.logs;
+                this.loading = false;
+            },
+
+            closeModal() {
+                this.showModal = false;
+                this.activityName = '';
+                this.logs = [];
+            },
+
+            // Modal Kirim Pesan
+            showMessageModal: false,
+            sending: false,
+            messageData: {
+                activityId: null,
+                activityName: '',
+                personResponsible: '',
+                whatsappNumber: '',
+                message: '',
+                deadline: ''
+            },
+
+            openMessageModal(data) {
+                this.messageData = {
+                    activityId: data.activityId,
+                    activityName: data.activityName,
+                    personResponsible: data.personResponsible,
+                    whatsappNumber: data.whatsappNumber,
+                    deadline: data.deadline,
+                    message: 'Halo ' + data.personResponsible +
+                        ', kami mengingatkan bahwa LPJ untuk kegiatan "' + data.activityName +
+                        '" belum diserahkan. Tenggat: ' + data.deadline
+                };
+                this.showMessageModal = true;
+            },
+
+            closeMessageModal() {
+                this.showMessageModal = false;
+                this.sending = false;
+                this.messageData = {
+                    activityId: null,
+                    activityName: '',
+                    personResponsible: '',
+                    whatsappNumber: '',
+                    message: '',
+                    deadline: ''
+                };
+            },
+
+            // Notification
+            notification: {
+                show: false,
+                type: '', // 'success' or 'error'
+                message: ''
+            },
+
+            showNotification(type, message) {
+                this.notification = {
+                    show: true,
+                    type,
+                    message
+                };
+                setTimeout(() => {
+                    this.notification.show = false;
+                }, 4000);
+            },
+
+            async sendWhatsApp() {
+                this.sending = true;
+                try {
+                    const result = await $wire.sendMessage(
+                        this.messageData.activityId,
+                        this.messageData.whatsappNumber,
+                        this.messageData.message
+                    );
+
+                    if (result.success) {
+                        this.closeMessageModal();
+                        this.showNotification('success', 'Pesan berhasil dikirim!');
+                    } else {
+                        this.showNotification('error', 'Gagal: ' + result.message);
+                    }
+                } catch (error) {
+                    this.showNotification('error', 'Terjadi kesalahan: ' + error.message);
+                } finally {
+                    this.sending = false;
+                }
+            }
+        }));
+    </script>
+@endscript
