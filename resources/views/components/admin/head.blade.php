@@ -1,11 +1,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{ $title ?? 'Monitoring Pengeluaran Dana ORMAWA' }}</title>
+
+<!-- Set dark mode immediately to prevent flash -->
+<script>
+    if (localStorage.getItem('darkMode') === 'true') {
+        document.documentElement.classList.add('dark');
+    }
+</script>
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-{{-- <script src="//unpkg.com/alpinejs" defer></script> --}}
 <script>
     tailwind.config = {
         darkMode: 'class',
@@ -30,8 +37,13 @@
     }
 </script>
 <style>
+    /* Alpine.js cloak - hide elements until Alpine initializes */
+    [x-cloak] {
+        display: none !important;
+    }
+
     html.dark body {
-        background-color: #111827;
+        background-color: #111827 !important;
         /* gray-900 */
     }
 
