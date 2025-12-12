@@ -18,7 +18,21 @@
                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                 class="relative transform overflow-hidden rounded-xl bg-white dark:bg-gray-800 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-2xl">
 
-                <template x-if="selectedActivity">
+                <!-- Loading State -->
+                <div x-show="loading" class="p-12 text-center">
+                    <svg class="animate-spin h-10 w-10 text-blue-600 dark:text-blue-400 mx-auto mb-4"
+                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                            stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                        </path>
+                    </svg>
+                    <p class="text-gray-500 dark:text-gray-400">Memuat detail kegiatan...</p>
+                </div>
+
+                <!-- Content State -->
+                <template x-if="!loading && selectedActivity">
                     <div class="bg-white dark:bg-gray-800 px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                         <div class="mb-6 border-b border-gray-200 dark:border-gray-700 pb-4">
                             <h3 class="text-xl font-semibold leading-6 text-gray-900 dark:text-gray-100"

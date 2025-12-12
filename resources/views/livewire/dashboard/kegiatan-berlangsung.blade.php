@@ -80,39 +80,44 @@
     </div>
 </div>
 
+@script
 <script>
-    function kegiatanData() {
-        return {
-            activities: @json($activities),
+    Alpine.data('kegiatanData', () => ({
+        activities: @json($activities),
 
-            formatPeriode(startDate, endDate) {
-                if (!startDate || !endDate) return '-';
+        formatPeriode(startDate, endDate) {
+            if (!startDate || !endDate) return '-';
 
-                const start = new Date(startDate);
-                const end = new Date(endDate);
+            const start = new Date(startDate);
+            const end = new Date(endDate);
 
-                const startDay = start.getDate();
-                const endDay = end.getDate();
+            const startDay = start.getDate();
+            const endDay = end.getDate();
 
-                const startMonth = start.toLocaleDateString('id-ID', { month: 'short' });
-                const endMonth = end.toLocaleDateString('id-ID', { month: 'short' });
+            const startMonth = start.toLocaleDateString('id-ID', { month: 'short' });
+            const endMonth = end.toLocaleDateString('id-ID', { month: 'short' });
 
-                const year = end.getFullYear();
+            const year = end.getFullYear();
 
-                if (startMonth === endMonth) {
-                    return `${startDay}-${endDay} ${startMonth} ${year}`;
-                }
-
-                return `${startDay} ${startMonth} - ${endDay} ${endMonth} ${year}`;
-            },
-
-            hitungHariTersisa(endDate) {
-                const today = new Date();
-                const end = new Date(endDate);
-
-                const diff = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
-                return diff >= 0 ? diff : 0;
+            if (startMonth === endMonth) {
+                return `${startDay}-${endDay} ${startMonth} ${year}`;
             }
+
+            return `${startDay} ${startMonth} - ${endDay} ${endMonth} ${year}`;
+        },
+
+        hitungHariTersisa(endDate) {
+            if (!endDate) return 0;
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Reset waktu untuk perhitungan akurat
+            
+            const end = new Date(endDate);
+            end.setHours(0, 0, 0, 0);
+
+            const diff = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
+            return diff >= 0 ? diff : 0;
         }
-    }
+    }));
 </script>
+@endscript

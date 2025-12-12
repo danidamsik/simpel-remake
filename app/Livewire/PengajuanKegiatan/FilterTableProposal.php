@@ -46,11 +46,29 @@ class FilterTableProposal extends Component
         $this->resetPage();
     }
 
+    #[\Livewire\Attributes\Renderless]
+    public function getActivityDetails($activityId)
+    {
+        $activity = Activity::with([
+            'organization:id,name',
+            'proposal:id,date_received,funds_approved,proposal_file',
+            'lpj:id,activity_id,status,date_received,file'
+        ])
+        ->withSum('expenses', 'amount')
+        ->find($activityId);
+
+        return $activity ? $activity->toArray() : null;
+    }
+
     public function render()
     {
         $activities = Activity::query()
-            ->with(['organization', 'proposal', 'lpj'])
-            ->withSum('expenses', 'amount')
+            ->select(['id', 'name', 'location', 'organization_id', 'proposal_id', 'period_id', 'created_at'])
+            ->with([
+                'organization:id,name,lembaga',
+                'proposal:id,date_received,funds_approved',
+                'lpj:id,activity_id,status'
+            ])
             ->when($this->lembagaFilter, function ($query) {
                 $query->whereHas('organization', function ($q) {
                     $q->where('lembaga', $this->lembagaFilter);

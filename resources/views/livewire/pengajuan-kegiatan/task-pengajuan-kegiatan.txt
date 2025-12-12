@@ -1,9 +1,0 @@
-TASK COMPONENT chart-pengeluaran-lembaga
-============================================
-data yang diterima :
-$totalProposal, $totalDanaDisetujui, $totalKegiatan, $kegiatanBerlangsung
-$menungguLpj, $sudahDisetor, $totalLpj
-
-task:
-tampilkan data nya
-note: pakai format ratus, juta, milyar untuk $totalDanaDisetujui
