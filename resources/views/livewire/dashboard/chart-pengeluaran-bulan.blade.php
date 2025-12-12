@@ -11,181 +11,204 @@
     </div>
 </div>
 
+@script
 <script>
-    function chartComponent() {
-        return {
-            chart: null,
-            isDark: false,
-            seriesData: @json($seriesData ?? []),
-            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+    Alpine.data('chartComponent', () => ({
+        chart: null,
+        isDark: false,
+        seriesData: @json($seriesData ?? []),
+        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+        observer: null,
+        mediaQuery: null,
 
-            formatIDR(val) {
-                return new Intl.NumberFormat('id-ID', {
-                    style: 'currency',
-                    currency: 'IDR',
-                    maximumFractionDigits: 0
-                }).format(val);
-            },
+        formatIDR(val) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                maximumFractionDigits: 0
+            }).format(val);
+        },
 
-            // Format untuk sumbu Y (singkat) - tanpa .0
-            formatYAxis(val) {
-                if (val >= 1000000000) {
-                    const formatted = (val / 1000000000);
-                    return 'Rp ' + (formatted % 1 === 0 ? formatted.toFixed(0) : formatted.toFixed(1)) + ' M';
-                } else if (val >= 1000000) {
-                    const formatted = (val / 1000000);
-                    return 'Rp ' + (formatted % 1 === 0 ? formatted.toFixed(0) : formatted.toFixed(1)) + ' Jt';
-                } else if (val >= 1000) {
-                    const formatted = (val / 1000);
-                    return 'Rp ' + (formatted % 1 === 0 ? formatted.toFixed(0) : formatted.toFixed(1)) + ' Rb';
-                } else if (val >= 100) {
-                    return 'Rp ' + val.toFixed(0);
+        // Format untuk sumbu Y (singkat) - tanpa .0
+        formatYAxis(val) {
+            if (val >= 1000000000) {
+                const formatted = (val / 1000000000);
+                return 'Rp ' + (formatted % 1 === 0 ? formatted.toFixed(0) : formatted.toFixed(1)) + ' M';
+            } else if (val >= 1000000) {
+                const formatted = (val / 1000000);
+                return 'Rp ' + (formatted % 1 === 0 ? formatted.toFixed(0) : formatted.toFixed(1)) + ' Jt';
+            } else if (val >= 1000) {
+                const formatted = (val / 1000);
+                return 'Rp ' + (formatted % 1 === 0 ? formatted.toFixed(0) : formatted.toFixed(1)) + ' Rb';
+            } else if (val >= 100) {
+                return 'Rp ' + val.toFixed(0);
+            }
+            return 'Rp ' + val;
+        },
+
+        initChart() {
+            this.checkDarkMode();
+            this.renderChart();
+
+            // Watch untuk perubahan dark mode dari system
+            this.mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            const mediaHandler = (e) => {
+                if (!('theme' in localStorage)) {
+                    this.checkDarkMode();
+                    this.updateChart();
                 }
-                return 'Rp ' + val;
-            },
+            };
+            this.mediaQuery.addEventListener('change', mediaHandler);
 
-            initChart() {
-                this.checkDarkMode();
-                this.renderChart();
+            // Observer untuk perubahan class 'dark' di documentElement
+            this.observer = new MutationObserver(() => {
+                const newDarkState = document.documentElement.classList.contains('dark');
+                if (this.isDark !== newDarkState) {
+                    this.isDark = newDarkState;
+                    this.updateChart();
+                }
+            });
 
-                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-                    if (!('theme' in localStorage)) {
-                        this.checkDarkMode();
-                        this.updateChart();
-                    }
-                });
+            this.observer.observe(document.documentElement, {
+                attributes: true,
+                attributeFilter: ['class']
+            });
+        },
 
-                const observer = new MutationObserver(() => {
-                    const newDarkState = document.documentElement.classList.contains('dark');
-                    if (this.isDark !== newDarkState) {
-                        this.isDark = newDarkState;
-                        this.updateChart();
-                    }
-                });
+        checkDarkMode() {
+            this.isDark = document.documentElement.classList.contains('dark');
+        },
 
-                observer.observe(document.documentElement, {
-                    attributes: true,
-                    attributeFilter: ['class']
-                });
-            },
+        buildOptions() {
+            const textColor = this.isDark ? '#E5E7EB' : '#374151';
+            const gridBorder = this.isDark ? '#374151' : '#E5E7EB';
 
-            checkDarkMode() {
-                this.isDark = document.documentElement.classList.contains('dark');
-            },
-
-            buildOptions() {
-                const textColor = this.isDark ? '#E5E7EB' : '#374151';
-                const gridBorder = this.isDark ? '#374151' : '#E5E7EB';
-
-                return {
-                    chart: {
-                        type: 'line',
-                        height: 350,
-                        toolbar: {
-                            show: false
-                        },
-                        background: 'transparent',
-                        animations: {
-                            enabled: true,
-                            easing: 'easeinout',
-                            speed: 400
-                        }
-                    },
-                    series: [{
-                        name: 'Pengeluaran',
-                        data: this.seriesData
-                    }],
-                    stroke: {
-                        curve: 'smooth',
-                        width: 3
-                    },
-                    markers: {
-                        size: 5,
-                        strokeWidth: 2,
-                        strokeColors: this.isDark ? '#111827' : '#ffffff',
-                        hover: {
-                            size: 7
-                        }
-                    },
-                    xaxis: {
-                        categories: this.categories,
-                        labels: {
-                            style: {
-                                colors: new Array(this.categories.length).fill(textColor),
-                                fontSize: '12px'
-                            }
-                        },
-                        axisBorder: {
-                            show: false
-                        },
-                        axisTicks: {
-                            show: false
-                        }
-                    },
-                    yaxis: {
-                        tickAmount: 5, // Menambah jumlah label di sumbu Y
-                        labels: {
-                            formatter: (val) => this.formatYAxis(val),
-                            style: {
-                                colors: [textColor],
-                                fontSize: '12px'
-                            }
-                        }
-                    },
-                    tooltip: {
-                        theme: this.isDark ? 'dark' : 'light',
-                        y: {
-                            formatter: (val) => this.formatIDR(val)
-                        },
-                        style: {
-                            fontSize: '13px'
-                        }
-                    },
-                    grid: {
-                        borderColor: gridBorder,
-                        strokeDashArray: 4,
-                        xaxis: {
-                            lines: {
-                                show: false
-                            }
-                        }
-                    },
-                    colors: this.isDark ? ['#38BDF8'] : ['#0ea5e9'],
-                    fill: {
-                        type: 'gradient',
-                        gradient: {
-                            shade: this.isDark ? 'dark' : 'light',
-                            type: 'vertical',
-                            shadeIntensity: 0.5,
-                            gradientToColors: this.isDark ? ['#0284c7'] : ['#0369a1'],
-                            inverseColors: false,
-                            opacityFrom: 0.8,
-                            opacityTo: 0.2,
-                            stops: [0, 100]
-                        }
-                    },
-                    legend: {
+            return {
+                chart: {
+                    type: 'line',
+                    height: 350,
+                    toolbar: {
                         show: false
                     },
-                    dataLabels: {
-                        enabled: false
+                    background: 'transparent',
+                    animations: {
+                        enabled: true,
+                        easing: 'easeinout',
+                        speed: 400
                     }
-                };
-            },
-
-            renderChart() {
-                const chartEl = document.querySelector('#chart');
-                const opts = this.buildOptions();
-                this.chart = new ApexCharts(chartEl, opts);
-                this.chart.render();
-            },
-
-            updateChart() {
-                if (this.chart) {
-                    this.chart.destroy();
-                    this.renderChart();
+                },
+                series: [{
+                    name: 'Pengeluaran',
+                    data: this.seriesData
+                }],
+                stroke: {
+                    curve: 'smooth',
+                    width: 3
+                },
+                markers: {
+                    size: 5,
+                    strokeWidth: 2,
+                    strokeColors: this.isDark ? '#111827' : '#ffffff',
+                    hover: {
+                        size: 7
+                    }
+                },
+                xaxis: {
+                    categories: this.categories,
+                    labels: {
+                        style: {
+                            colors: new Array(this.categories.length).fill(textColor),
+                            fontSize: '12px'
+                        }
+                    },
+                    axisBorder: {
+                        show: false
+                    },
+                    axisTicks: {
+                        show: false
+                    }
+                },
+                yaxis: {
+                    tickAmount: 5,
+                    labels: {
+                        formatter: (val) => this.formatYAxis(val),
+                        style: {
+                            colors: [textColor],
+                            fontSize: '12px'
+                        }
+                    }
+                },
+                tooltip: {
+                    theme: this.isDark ? 'dark' : 'light',
+                    y: {
+                        formatter: (val) => this.formatIDR(val)
+                    },
+                    style: {
+                        fontSize: '13px'
+                    }
+                },
+                grid: {
+                    borderColor: gridBorder,
+                    strokeDashArray: 4,
+                    xaxis: {
+                        lines: {
+                            show: false
+                        }
+                    }
+                },
+                colors: this.isDark ? ['#38BDF8'] : ['#0ea5e9'],
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        shade: this.isDark ? 'dark' : 'light',
+                        type: 'vertical',
+                        shadeIntensity: 0.5,
+                        gradientToColors: this.isDark ? ['#0284c7'] : ['#0369a1'],
+                        inverseColors: false,
+                        opacityFrom: 0.8,
+                        opacityTo: 0.2,
+                        stops: [0, 100]
+                    }
+                },
+                legend: {
+                    show: false
+                },
+                dataLabels: {
+                    enabled: false
                 }
+            };
+        },
+
+        renderChart() {
+            const chartEl = document.querySelector('#chart');
+            if (!chartEl) return;
+            
+            const opts = this.buildOptions();
+            this.chart = new ApexCharts(chartEl, opts);
+            this.chart.render();
+        },
+
+        updateChart() {
+            if (this.chart) {
+                this.chart.destroy();
+                this.renderChart();
+            }
+        },
+
+        // Cleanup function yang dipanggil otomatis oleh Alpine saat component di-destroy
+        destroy() {
+            if (this.chart) {
+                this.chart.destroy();
+                this.chart = null;
+            }
+            if (this.observer) {
+                this.observer.disconnect();
+                this.observer = null;
+            }
+            if (this.mediaQuery) {
+                this.mediaQuery.removeEventListener('change', () => {});
             }
         }
-    }
+    }));
 </script>
+@endscript

@@ -11,6 +11,7 @@ if (darkMode) {
 
 <head>
     @include('components.admin.head')
+    @livewireStyles
 </head>
 
 <body class="bg-gray-50 dark:bg-gray-900 font-sans antialiased transition-colors duration-300" x-data="{ sidebarOpen: false }">

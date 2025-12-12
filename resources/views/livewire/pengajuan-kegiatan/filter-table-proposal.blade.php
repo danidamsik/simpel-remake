@@ -1,27 +1,4 @@
-<div x-data="{
-    open: false,
-    selectedActivity: null,
-    formatDate(dateString) {
-        if (!dateString) return '-';
-        const date = new Date(dateString);
-        return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-    },
-    formatMoney(amount) {
-        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount || 0);
-    },
-    getStatus(start, end) {
-        const now = new Date();
-        now.setHours(0, 0, 0, 0); // Compare dates only
-        const startDate = new Date(start);
-        startDate.setHours(0, 0, 0, 0);
-        const endDate = new Date(end);
-        endDate.setHours(23, 59, 59, 999); // Include the entire end day
-
-        if (startDate > now) return { text: 'Belum Dimulai', class: 'bg-gray-100 text-gray-800' };
-        if (now >= startDate && now <= endDate) return { text: 'Berlangsung', class: 'bg-blue-100 text-blue-800' };
-        return { text: 'Selesai', class: 'bg-green-100 text-green-800' };
-    }
-}"
+<div x-data="proposalTable"
     class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg dark:shadow-gray-900/20 transition-colors my-24">
     <!-- Filter Section -->
     <div class="mb-8">
@@ -125,9 +102,6 @@
                             Dana Disetujui</th>
                         <th
                             class="py-3 px-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                            Total Pengeluaran</th>
-                        <th
-                            class="py-3 px-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                             Status LPJ</th>
                         <th
                             class="py-3 px-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
@@ -171,24 +145,18 @@
                             </td>
 
                             <td class="py-4 px-4">
-                                <span class="text-sm font-medium text-gray-900 dark:text-gray-200">Rp
-                                    {{ number_format($activity->expenses_sum_amount, 0, ',', '.') }}</span>
-                            </td>
-
-                            <td class="py-4 px-4">
                                 @php
-                                    $statusColor = $activity->lpj?->status == 'Disetujui' ? 'green' : 'yellow';
-                                    $statusLabel = $activity->lpj?->status ?? 'Belum Ada';
+                                    $statusLabel = $activity->lpj?->status ?? 'Belum Disetor';
                                 @endphp
                                 <span
-                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-{{ $statusColor }}-100 dark:bg-{{ $statusColor }}-900/30 text-{{ $statusColor }}-800 dark:text-{{ $statusColor }}-300">
+                                    class="text-sm font-medium {{ $statusLabel == 'Disetujui' ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400' }}">
                                     {{ $statusLabel }}
                                 </span>
                             </td>
 
                             <td class="py-4 px-4">
                                 <div class="flex items-center justify-center gap-1">
-                                    <button @click="selectedActivity = {{ Js::from($activity) }}; open = true"
+                                    <button @click="openModal({{ $activity->id }})"
                                         class="p-2 text-blue-600 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
                                         title="Lihat Detail">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -210,10 +178,116 @@
                     @endforelse
                 </tbody>
             </table>
-            <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
-                {{ $activities->links('livewire.pengajuan-kegiatan.pagination') }}
-            </div>
+            <x-global.pagination :paginator="$activities" />
         </div>
     </div>
     @include('livewire.pengajuan-kegiatan.detail-modal')
 </div>
+
+@script
+<script>
+    Alpine.data('proposalTable', () => ({
+        open: false,
+        selectedActivity: null,
+        loading: false,
+
+        async openModal(activityId) {
+            this.selectedActivity = null;
+            this.loading = true;
+            this.open = true;
+
+            try {
+                this.selectedActivity = await $wire.getActivityDetails(activityId);
+            } catch (error) {
+                console.error('Error fetching activity details:', error);
+                this.open = false;
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        closeModal() {
+            this.open = false;
+            this.selectedActivity = null;
+            this.loading = false;
+        },
+
+        formatDate(dateString) {
+            if (!dateString) return '-';
+            
+            try {
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) return '-';
+                
+                return date.toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                });
+            } catch (error) {
+                console.error('Error formatting date:', error);
+                return '-';
+            }
+        },
+
+        formatMoney(amount) {
+            try {
+                return new Intl.NumberFormat('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                }).format(amount || 0);
+            } catch (error) {
+                console.error('Error formatting money:', error);
+                return 'Rp 0';
+            }
+        },
+
+        getStatus(start, end) {
+            if (!start || !end) {
+                return {
+                    text: '-',
+                    class: 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200'
+                };
+            }
+
+            try {
+                const now = new Date();
+                now.setHours(0, 0, 0, 0);
+                
+                const startDate = new Date(start);
+                startDate.setHours(0, 0, 0, 0);
+                
+                const endDate = new Date(end);
+                endDate.setHours(23, 59, 59, 999);
+
+                if (startDate > now) {
+                    return {
+                        text: 'Belum Dimulai',
+                        class: 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200'
+                    };
+                }
+                
+                if (now >= startDate && now <= endDate) {
+                    return {
+                        text: 'Berlangsung',
+                        class: 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300'
+                    };
+                }
+                
+                return {
+                    text: 'Selesai',
+                    class: 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300'
+                };
+            } catch (error) {
+                console.error('Error getting status:', error);
+                return {
+                    text: '-',
+                    class: 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200'
+                };
+            }
+        }
+    }));
+</script>
+@endscript

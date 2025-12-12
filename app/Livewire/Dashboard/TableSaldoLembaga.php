@@ -4,6 +4,7 @@ namespace App\Livewire\Dashboard;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Organization;
+use Livewire\Attributes\Renderless;
 
 class TableSaldoLembaga extends Component
 {
@@ -44,18 +45,35 @@ class TableSaldoLembaga extends Component
                     return $activity->expenses->sum('amount');
                 }),
                 'current_balance' => $org->wallets->sum('balance'),
-                'activities' => $org->activities->map(function ($activity) {
-                    return [
-                        'activity_name' => $activity->name,
-                        'start_date' => $activity->start_date,
-                        'end_date' => $activity->end_date,
-                        'location' => $activity->location,
-                        'funds_used' => $activity->expenses->sum('amount'),
-                        'lpj_status' => $activity->lpj->status ?? null
-                    ];
-                })
             ];
         });
+    }
+    
+    #[Renderless]
+    public function getActivities($organizationId)
+    {
+        $organization = Organization::with([
+            'activities' => function ($query) {
+                $query->whereHas('period', function ($periodQuery) {
+                    $periodQuery->where('status', true);
+                })->with(['lpj', 'expenses']);
+            }
+        ])->find($organizationId);
+
+        if (!$organization) {
+            return [];
+        }
+
+        return $organization->activities->map(function ($activity) {
+            return [
+                'activity_name' => $activity->name,
+                'start_date' => $activity->start_date,
+                'end_date' => $activity->end_date,
+                'location' => $activity->location,
+                'funds_used' => $activity->expenses->sum('amount'),
+                'lpj_status' => $activity->lpj->status ?? null
+            ];
+        })->toArray();
     }
 
     public function render()
