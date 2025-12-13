@@ -7,6 +7,7 @@ use App\Models\Period;
 use Livewire\Component;
 use App\Models\Organization;
 use Livewire\WithPagination;
+use Livewire\Attributes\Renderless;
 
 class FilterTableProposal extends Component
 {
@@ -46,7 +47,7 @@ class FilterTableProposal extends Component
         $this->resetPage();
     }
 
-    #[\Livewire\Attributes\Renderless]
+    #[Renderless]
     public function getActivityDetails($activityId)
     {
         $activity = Activity::with([

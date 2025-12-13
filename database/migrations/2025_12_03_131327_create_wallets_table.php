@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('wallets', function (Blueprint $table) {
             $table->id();
             $table->foreignId('organization_id')->constrained('organizations')->cascadeOnDelete();
+            $table->foreignId('period_id')->constrained('periods')->onDelete('cascade');
             $table->string('bank_name')->nullable();
             $table->string('account_name');
             $table->string('account_number')->unique();
