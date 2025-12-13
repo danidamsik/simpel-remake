@@ -36,7 +36,7 @@ class ExpenseFactory extends Factory
                 'PPh23',
                 'Ppn'
             ]),
-            'proof_file' => 'proof/' . $this->faker->uuid() . '.jpg',
+            'proof_file' => 'bukti_transfer/gambar.jpg',
         ];
     }
 }

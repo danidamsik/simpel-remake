@@ -11,6 +11,7 @@ class Wallet extends Model
 
     protected $fillable = [
         'organization_id',
+        'period_id',
         'bank_name',
         'account_name',
         'account_number',
@@ -20,5 +21,10 @@ class Wallet extends Model
     public function organization()
     {
         return $this->belongsTo(Organization::class);
+    }
+
+    public function period()
+    {
+        return $this->belongsTo(Period::class);
     }
 }

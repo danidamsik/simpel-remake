@@ -40,6 +40,7 @@ class DatabaseSeeder extends Seeder
             
             Wallet::factory()->create([
                 'organization_id' => $org->id,
+                'period_id' => $Period->id,
             ]);
 
             for ($i = 0; $i < 5; $i++) {

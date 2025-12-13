@@ -27,4 +27,9 @@ class Period extends Model
     {
         return $this->hasMany(Activity::class);
     }
+
+    public function wallets()
+    {
+        return $this->hasMany(Wallet::class);
+    }
 }
