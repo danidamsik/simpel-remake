@@ -1,6 +1,15 @@
 <x-layouts.admin title="Master Data">
-    <div class="bg-gray-50 dark:bg-gray-900 min-h-screen" x-data="masterData">
-
+    <div class="bg-gray-50 dark:bg-gray-900 min-h-screen" x-data="{
+        activeTab: new URLSearchParams(window.location.search).get('tab') || 'user',
+        init() {
+            // Watch for activeTab changes and update URL query parameter
+            this.$watch('activeTab', (value) => {
+                const url = new URL(window.location);
+                url.searchParams.set('tab', value);
+                window.history.pushState({}, '', url);
+            });
+        }
+    }" x-init="init()">
         <!-- Component 1: Tabs -->
         <div class="bg-white dark:bg-gray-800 dark:border-gray-700 rounded-xl shadow-sm border border-gray-200 mb-6">
             @livewire('master-data.active-tab')
@@ -16,19 +25,6 @@
         </div>
     </div>
 
-    <script>
-        // Alpine.js Data
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('masterData', () => ({
-                activeTab: 'user',
-
-                init() {
-                    // Set active tab on initialization
-                    console.log('Master Data initialized with active tab:', this.activeTab);
-                }
-            }));
-        });
-    </script>
 
     <style>
         /* Custom scrollbar for tabs */

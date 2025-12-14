@@ -2,20 +2,34 @@
     x-transition:enter-start="opacity-0 transform translate-y-4"
     x-transition:enter-end="opacity-100 transform translate-y-0">
 
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <div>
-            <h2 class="text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-100">Data Bendahara</h2>
-            <p class="text-gray-600 dark:text-gray-300 text-sm">Kelola akun bendahara seluruh lembaga</p>
+    <div class="mb-6">
+        <h2 class="text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-100">Data Bendahara</h2>
+        <p class="text-gray-600 dark:text-gray-300 text-sm">Kelola akun bendahara seluruh lembaga</p>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="mb-4 flex flex-col sm:flex-row gap-3">
+        <!-- Filter Organization -->
+        <div class="w-full sm:w-64">
+            <select wire:model.live="filterOrganization"
+                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                <option value="">Semua Lembaga</option>
+                @foreach ($organizations as $org)
+                    <option value="{{ $org->id }}">{{ $org->name }}</option>
+                @endforeach
+            </select>
         </div>
 
-        <!-- Button Tambah Bendahara -->
-        <button @click="$dispatch('open-modal-user')"
-            class="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
-            Tambah Bendahara
-        </button>
+        <!-- Filter Period -->
+        <div class="w-full sm:w-48">
+            <select wire:model.live="filterPeriod"
+                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                <option value="">Semua Periode</option>
+                @foreach ($periods as $period)
+                    <option value="{{ $period->id }}">{{ $period->name }}</option>
+                @endforeach
+            </select>
+        </div>
     </div>
 
     <!-- Table Data User -->
@@ -39,123 +53,67 @@
                         class="py-3 px-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                         Lembaga
                     </th>
-                    <th
-                        class="py-3 px-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                        Aksi
-                    </th>
                 </tr>
             </thead>
 
             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                <!-- Contoh Data -->
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                    <td class="py-3 px-4">
-                        <div class="flex items-center">
-                            <div
-                                class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-medium">
-                                AR
+                @forelse($users as $user)
+                    @php
+                        $colors = ['blue', 'green', 'purple', 'pink', 'indigo', 'teal', 'orange', 'red'];
+                        $color = $colors[$loop->index % count($colors)];
+                        $initials = strtoupper(substr($user->username, 0, 2));
+                    @endphp
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                        <td class="py-3 px-4">
+                            <div class="flex items-center">
+                                @if ($user->profile_path)
+                                    <img src="{{ asset('storage/profile/' . $user->profile_path) }}"
+                                        alt="{{ $user->username }}" class="h-10 w-10 rounded-full object-cover">
+                                @else
+                                    <div
+                                        class="h-10 w-10 rounded-full bg-gradient-to-br from-{{ $color }}-500 to-{{ $color }}-600 flex items-center justify-center text-white font-medium">
+                                        {{ $initials }}
+                                    </div>
+                                @endif
                             </div>
-                        </div>
-                    </td>
+                        </td>
 
-                    <td class="py-3 px-4">
-                        <div class="text-sm font-medium text-gray-900 dark:text-gray-100">andirahman</div>
-                    </td>
-
-                    <td class="py-3 px-4">
-                        <div class="text-sm text-gray-900 dark:text-gray-100">andi.rahman@example.com</div>
-                    </td>
-
-                    <td class="py-3 px-4">
-                        <span
-                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100">
-                            BEM FT
-                        </span>
-                    </td>
-
-                    <td class="py-3 px-4">
-                        <div class="flex items-center gap-2">
-                            <button
-                                @click="$dispatch('open-modal-user', {
-                                id: 1,
-                                username: 'andirahman',
-                                email: 'andi.rahman@example.com',
-                                lembaga: 'BEM FT',
-                                profile: null
-                            })"
-                                class="text-blue-600 hover:text-blue-800 p-1.5 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900 rounded-lg transition-colors">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
-                            </button>
-
-                            <button
-                                class="text-red-600 hover:text-red-800 p-1.5 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900 rounded-lg transition-colors">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-
-                <!-- Contoh Data 2 -->
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                    <td class="py-3 px-4">
-                        <div class="flex items-center">
-                            <div
-                                class="h-10 w-10 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white font-medium">
-                                SR
+                        <td class="py-3 px-4">
+                            <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $user->username }}
                             </div>
-                        </div>
-                    </td>
+                        </td>
 
-                    <td class="py-3 px-4">
-                        <div class="text-sm font-medium text-gray-900 dark:text-gray-100">sitiros</div>
-                    </td>
+                        <td class="py-3 px-4">
+                            <div class="text-sm text-gray-900 dark:text-gray-100">{{ $user->email }}</div>
+                        </td>
 
-                    <td class="py-3 px-4">
-                        <div class="text-sm text-gray-900 dark:text-gray-100">siti.ros@example.com</div>
-                    </td>
-
-                    <td class="py-3 px-4">
-                        <span
-                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
-                            HIMA TI
-                        </span>
-                    </td>
-
-                    <td class="py-3 px-4">
-                        <div class="flex items-center gap-2">
-                            <button
-                                @click="$dispatch('open-modal-user', {
-                                id: 2,
-                                username: 'sitiros',
-                                email: 'siti.ros@example.com',
-                                lembaga: 'HIMA TI',
-                                profile: null
-                            })"
-                                class="text-blue-600 hover:text-blue-800 p-1.5 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900 rounded-lg transition-colors">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <td class="py-3 px-4">
+                            @forelse($user->organization as $org)
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    {{ $org->name }}{{ !$loop->last ? ',' : '' }}
+                                </span>
+                            @empty
+                                <span class="text-gray-400 text-sm">-</span>
+                            @endforelse
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" class="py-8 text-center text-gray-500 dark:text-gray-400">
+                            <div class="flex flex-col items-center gap-2">
+                                <svg class="w-12 h-12 text-gray-300 dark:text-gray-600" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                                 </svg>
-                            </button>
-
-                            <button
-                                class="text-red-600 hover:text-red-800 p-1.5 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900 rounded-lg transition-colors">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
+                                <span>Belum ada data bendahara</span>
+                            </div>
+                        </td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
+    <x-global.pagination :paginator="$users" />
     @include('livewire.master-data.component.modal-form-user')
 </div>

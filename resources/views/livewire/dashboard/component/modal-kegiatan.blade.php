@@ -2,7 +2,7 @@
 <div x-show="isOpen" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
     x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150"
     x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-6">
 
     <!-- Modal Box -->
     <div x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95"
@@ -35,16 +35,7 @@
             class="px-6 py-4 max-h-[70vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-100 dark:scrollbar-track-gray-800">
 
             <!-- Loading State -->
-            <template x-if="loading">
-                <div class="text-center py-12">
-                    <div
-                        class="w-16 h-16 mx-auto rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4">
-                        <i class="fas fa-spinner fa-spin text-2xl text-blue-500"></i>
-                    </div>
-                    <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Memuat data...</h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Sedang mengambil data kegiatan</p>
-                </div>
-            </template>
+            @include('components.global.loading')
 
             <!-- Empty State -->
             <template x-if="!loading && activities.length === 0">
