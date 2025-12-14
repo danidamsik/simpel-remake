@@ -178,8 +178,8 @@
                     @endforelse
                 </tbody>
             </table>
-            <x-global.pagination :paginator="$activities" />
         </div>
+        <x-global.pagination :paginator="$activities" />
     </div>
     @include('livewire.pengajuan-kegiatan.detail-modal')
 </div>

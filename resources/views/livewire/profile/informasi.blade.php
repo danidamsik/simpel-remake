@@ -17,19 +17,24 @@
             <div class="flex flex-col md:flex-row items-center gap-4">
                 <!-- Avatar placeholder dengan ikon user -->
                 <div
-                    class="w-24 h-24 md:w-28 md:h-28 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center shadow-lg">
-                    <i class="fas fa-user text-5xl md:text-6xl text-blue-500 dark:text-blue-400"></i>
+                    class="w-24 h-24 md:w-28 md:h-28 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center shadow-lg overflow-hidden">
+                    @if ($user->profile_path)
+                        <img src="{{ asset('storage/profile/' . $user->profile_path) }}" alt="{{ $user->username }}"
+                            class="w-full h-full object-cover">
+                    @else
+                        <i class="fas fa-user text-5xl md:text-6xl text-blue-500 dark:text-blue-400"></i>
+                    @endif
                 </div>
 
                 <!-- Info singkat user di banner -->
                 <div class="text-center md:text-left text-white">
-                    <h2 class="text-xl md:text-2xl font-bold mb-1">Rezky Son</h2>
-                    <p class="text-blue-100 dark:text-blue-200 text-sm md:text-base mb-2">reznode12@gmial.com</p>
+                    <h2 class="text-xl md:text-2xl font-bold mb-1">{{ $user->username }}</h2>
+                    <p class="text-blue-100 dark:text-blue-200 text-sm md:text-base mb-2">{{ $user->email }}</p>
                     <!-- Badge role user -->
                     <span
                         class="inline-flex items-center gap-1 px-3 py-1 bg-white/20 dark:bg-black/20 backdrop-blur-sm rounded-full text-xs md:text-sm font-medium">
                         <i class="fas fa-shield-alt"></i>
-                        Administrator
+                        {{ $user->role }}
                     </span>
                 </div>
             </div>
@@ -54,7 +59,7 @@
                             <i class="fas fa-user text-gray-400 dark:text-gray-500 mr-1"></i>
                             Username
                         </label>
-                        <input type="text" value="Rezky Son"
+                        <input type="text" value="{{ $user->username }}"
                             class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition duration-200 outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                             placeholder="Masukkan username">
                     </div>
@@ -65,7 +70,7 @@
                             <i class="fas fa-envelope text-gray-400 dark:text-gray-500 mr-1"></i>
                             Email
                         </label>
-                        <input type="email" value="reznode12@gmail.com"
+                        <input type="email" value="{{ $user->email }}"
                             class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition duration-200 outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                             placeholder="Masukkan email">
                     </div>
@@ -76,7 +81,7 @@
                             <i class="fas fa-user-tag text-gray-400 dark:text-gray-500 mr-1"></i>
                             Role
                         </label>
-                        <input type="text" value="Administrator" disabled
+                        <input type="text" value="{{ $user->role }}" disabled
                             class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed">
                         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                             <i class="fas fa-info-circle"></i>

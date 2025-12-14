@@ -54,8 +54,27 @@
                     @forelse ($dataLembaga as $lembaga)
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
                             <!-- Lembaga -->
-                            <td class="px-6 py-4 font-medium text-gray-900 dark:text-gray-100">
-                                {{ $lembaga['organization_name'] }}
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    @if ($lembaga['logo_path'])
+                                        <img src="{{ asset('storage/profile/' . $lembaga['logo_path']) }}"
+                                            alt="{{ $lembaga['organization_name'] }}"
+                                            class="w-10 h-10 rounded-lg object-cover">
+                                    @else
+                                        @php
+                                            $colors = ['blue', 'green', 'purple', 'pink', 'indigo', 'teal'];
+                                            $color = $colors[$loop->index % count($colors)];
+                                            $initial = strtoupper(substr($lembaga['organization_name'], 0, 1));
+                                        @endphp
+                                        <div
+                                            class="w-10 h-10 rounded-lg bg-gradient-to-br from-{{ $color }}-500 to-{{ $color }}-600 flex items-center justify-center">
+                                            <span class="text-white font-bold">{{ $initial }}</span>
+                                        </div>
+                                    @endif
+                                    <span class="font-medium text-gray-900 dark:text-gray-100">
+                                        {{ $lembaga['organization_name'] }}
+                                    </span>
+                                </div>
                             </td>
                             <!-- Total Dana -->
                             <td class="px-6 py-4 text-gray-700 dark:text-gray-300">
@@ -143,45 +162,45 @@
 @endassets
 
 @script
-<script>
-    Alpine.data('modalData', () => ({
-        isOpen: false,
-        loading: false,
-        activities: [],
-        orgName: '',
+    <script>
+        Alpine.data('modalData', () => ({
+            isOpen: false,
+            loading: false,
+            activities: [],
+            orgName: '',
 
-        async openModal(organizationId, organizationName) {
-            this.orgName = organizationName;
-            this.activities = [];
-            this.loading = true;
-            this.isOpen = true;
-            document.body.style.overflow = 'hidden';
-
-            try {
-                this.activities = await $wire.getActivities(organizationId);
-            } catch (error) {
-                console.error('Error fetching activities:', error);
+            async openModal(organizationId, organizationName) {
+                this.orgName = organizationName;
                 this.activities = [];
-            } finally {
+                this.loading = true;
+                this.isOpen = true;
+                document.body.style.overflow = 'hidden';
+
+                try {
+                    this.activities = await $wire.getActivities(organizationId);
+                } catch (error) {
+                    console.error('Error fetching activities:', error);
+                    this.activities = [];
+                } finally {
+                    this.loading = false;
+                }
+            },
+
+            closeModal() {
+                this.isOpen = false;
                 this.loading = false;
-            }
-        },
+                document.body.style.overflow = 'auto';
+            },
 
-        closeModal() {
-            this.isOpen = false;
-            this.loading = false;
-            document.body.style.overflow = 'auto';
-        },
-
-        formatDate(dateString) {
-            if (!dateString) return '-';
-            const date = new Date(dateString);
-            return new Intl.DateTimeFormat('id-ID', {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric'
-            }).format(date);
-        },
-    }));
-</script>
+            formatDate(dateString) {
+                if (!dateString) return '-';
+                const date = new Date(dateString);
+                return new Intl.DateTimeFormat('id-ID', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric'
+                }).format(date);
+            },
+        }));
+    </script>
 @endscript

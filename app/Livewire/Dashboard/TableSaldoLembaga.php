@@ -33,22 +33,23 @@ class TableSaldoLembaga extends Component
                 })->with(['lpj', 'expenses']);
             }
         ])
-        ->when($this->search, function ($query) {
-            $query->where('name', 'like', '%' . $this->search . '%');
-        })
-        ->paginate($this->perPage)
-        ->through(function ($org) {
-            return [
-                'id' => $org->id,
-                'organization_name' => $org->name,
-                'total_funds_used' => $org->activities->sum(function ($activity) {
-                    return $activity->expenses->sum('amount');
-                }),
-                'current_balance' => $org->wallets->sum('balance'),
-            ];
-        });
+            ->when($this->search, function ($query) {
+                $query->where('name', 'like', '%' . $this->search . '%');
+            })
+            ->paginate($this->perPage)
+            ->through(function ($org) {
+                return [
+                    'id' => $org->id,
+                    'organization_name' => $org->name,
+                    'logo_path' => $org->logo_path,
+                    'total_funds_used' => $org->activities->sum(function ($activity) {
+                        return $activity->expenses->sum('amount');
+                    }),
+                    'current_balance' => $org->wallets->sum('balance'),
+                ];
+            });
     }
-    
+
     #[Renderless]
     public function getActivities($organizationId)
     {
