@@ -5,9 +5,9 @@
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">Daftar Proposal</h2>
             <div class="flex items-center gap-4">
-                <button class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                <a href="/pengajuan-kegiatan/tambah-kegiatan" wire:navigate class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                     Tambah Kegiatan
-                </button>
+                </a>
             </div>
         </div>
 
@@ -291,3 +291,4 @@
     }));
 </script>
 @endscript
+                
