@@ -1,6 +1,5 @@
 <?php
-
-
+use App\Livewire\PengajuanKegiatan\FormtambahKegiatan;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -19,7 +18,9 @@ Route::get('/pengajuan-kegiatan', function () {
     return view('pages.pengajuan-kegiatan');
 });
 
-Route::get('/transaksi', function () {
+Route::get('/pengajuan-kegiatan/tambah-kegiatan', FormtambahKegiatan::class);
+
+Route::get('/transaksi', function() {
     return view('pages./transaksi');
 });
 

@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('activity_id')->unique()->constrained('activities')->onDelete('cascade');
             $table->foreignId('organization_id')->constrained('organizations')->onDelete('cascade');
-            $table->date('date_received');
+            $table->date('date_received')->nullable();
             $table->enum('status', ['Belum Disetor', 'Disetujui'])->default('Belum Disetor');
             $table->string('file')->nullable();
             $table->timestamps();

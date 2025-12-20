@@ -4,14 +4,16 @@ namespace App\Livewire\PengajuanKegiatan;
 
 use App\Models\Activity;
 use App\Models\Period;
+use App\Models\Lpj;
 use Livewire\Component;
 use App\Models\Organization;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
 use Livewire\Attributes\Renderless;
 
 class FilterTableProposal extends Component
 {
-    use WithPagination;
+    use WithPagination, WithFileUploads;
 
     public $lembagaFilter = '';
     public $periodId = '';
@@ -20,6 +22,12 @@ class FilterTableProposal extends Component
 
     public $lembagas;
     public $periods;
+
+    // Modal State
+    public $open = false;
+
+    // LPJ Upload
+    public $lpjFile;
 
     public function mount()
     {
@@ -55,10 +63,42 @@ class FilterTableProposal extends Component
             'proposal:id,date_received,funds_approved,proposal_file',
             'lpj:id,activity_id,status,date_received,file'
         ])
-        ->withSum('expenses', 'amount')
-        ->find($activityId);
+            ->withSum('expenses', 'amount')
+            ->find($activityId);
 
         return $activity ? $activity->toArray() : null;
+    }
+
+    public function uploadLpj($activityId)
+    {
+        $this->validate([
+            'lpjFile' => 'required|file|mimes:pdf|max:10240',
+        ], [
+            'lpjFile.required' => 'File LPJ wajib diunggah.',
+            'lpjFile.mimes' => 'File LPJ harus berformat PDF.',
+            'lpjFile.max' => 'Ukuran file maksimal 10MB.',
+        ]);
+
+        $lpj = Lpj::where('activity_id', $activityId)->first();
+
+        if (!$lpj) {
+            session()->flash('error', 'Data LPJ tidak ditemukan.');
+            return;
+        }
+
+        // Store file
+        $filePath = $this->lpjFile->store('lpj', 'public');
+
+        // Update LPJ
+        $lpj->update([
+            'file' => $filePath,
+            'date_received' => now(),
+            'status' => 'Disetujui',
+        ]);
+
+        $this->reset('lpjFile');
+        $this->open = false;
+        session()->flash('success', 'File LPJ berhasil diunggah!');
     }
 
     public function render()
