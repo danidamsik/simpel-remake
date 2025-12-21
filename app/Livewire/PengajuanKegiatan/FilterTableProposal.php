@@ -15,18 +15,7 @@ class FilterTableProposal extends Component
 {
     use WithPagination, WithFileUploads;
 
-    public $lembagaFilter = '';
-    public $periodId = '';
-    public $lpjStatus = '';
-    public $search = '';
-
-    public $lembagas;
-    public $periods;
-
-    // Modal State
-    public $open = false;
-
-    // LPJ Upload
+    public $lembagaFilter, $periodId, $lpjStatus, $search, $lembagas, $periods;
     public $lpjFile;
 
     public function mount()
@@ -72,34 +61,43 @@ class FilterTableProposal extends Component
     public function uploadLpj($activityId)
     {
         $this->validate([
-            'lpjFile' => 'required|file|mimes:pdf|max:10240',
+            'lpjFile' => 'required|file|mimes:pdf,doc,docx|max:10240', // max 10MB
         ], [
-            'lpjFile.required' => 'File LPJ wajib diunggah.',
-            'lpjFile.mimes' => 'File LPJ harus berformat PDF.',
+            'lpjFile.required' => 'File LPJ wajib diupload.',
+            'lpjFile.mimes' => 'File harus berformat PDF, DOC, atau DOCX.',
             'lpjFile.max' => 'Ukuran file maksimal 10MB.',
         ]);
 
-        $lpj = Lpj::where('activity_id', $activityId)->first();
-
-        if (!$lpj) {
-            session()->flash('error', 'Data LPJ tidak ditemukan.');
+        $activity = Activity::find($activityId);
+        
+        if (!$activity) {
+            session()->flash('error', 'Kegiatan tidak ditemukan.');
             return;
         }
 
         // Store file
         $filePath = $this->lpjFile->store('lpj', 'public');
 
-        // Update LPJ
-        $lpj->update([
-            'file' => $filePath,
-            'date_received' => now(),
-            'status' => 'Disetujui',
-        ]);
+        // Update or create LPJ record
+        Lpj::updateOrCreate(
+            ['activity_id' => $activityId],
+            [
+                'organization_id' => $activity->organization_id,
+                'file' => $filePath,
+                'status' => 'Disetujui',
+                'date_received' => now(),
+            ]
+        );
 
+        // Reset file input
         $this->reset('lpjFile');
-        $this->open = false;
-        session()->flash('success', 'File LPJ berhasil diunggah!');
+
+        // Dispatch event untuk refresh data di modal dan tabel
+        $this->dispatch('lpj-uploaded', activityId: $activityId);
+        
+        session()->flash('success', 'LPJ berhasil diupload dan disetujui.');
     }
+
 
     public function render()
     {

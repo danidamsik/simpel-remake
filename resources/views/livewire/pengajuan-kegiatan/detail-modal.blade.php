@@ -161,11 +161,12 @@
                                             </div>
                                         </dl>
                                     </div>
-                                    <div
-                                        class="flex items-center justify-center bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
-                                        <template x-if="selectedActivity.lpj && selectedActivity.lpj.file">
+                                    <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+                                        {{-- Jika LPJ sudah disetujui dan ada file, tampilkan download link --}}
+                                        <template
+                                            x-if="selectedActivity.lpj && selectedActivity.lpj.status === 'Disetujui' && selectedActivity.lpj.file">
                                             <a :href="'/storage/' + selectedActivity.lpj.file" target="_blank"
-                                                class="text-center group">
+                                                class="text-center group flex flex-col items-center justify-center">
                                                 <div
                                                     class="w-12 h-12 bg-white dark:bg-gray-800 rounded-full shadow flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
                                                     <svg class="w-6 h-6 text-green-600" fill="none"
@@ -180,16 +181,98 @@
                                                     File LPJ</span>
                                             </a>
                                         </template>
-                                        <template x-if="!selectedActivity.lpj || !selectedActivity.lpj.file">
-                                            <div class="text-center text-gray-500 dark:text-gray-400">
-                                                <svg class="w-12 h-12 mx-auto mb-2 opacity-50" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                                                </svg>
-                                                <span class="text-sm">File LPJ belum
-                                                    tersedia</span>
+
+                                        {{-- Jika activity selesai dan LPJ belum disetor, tampilkan form upload --}}
+                                        <template
+                                            x-if="getStatus(selectedActivity.start_date, selectedActivity.end_date).text === 'Selesai' && (!selectedActivity.lpj || selectedActivity.lpj.status === 'Belum Disetor')">
+                                            <form class="space-y-3" x-data="{ uploading: false, progress: 0 }"
+                                                x-on:livewire-upload-start="uploading = true"
+                                                x-on:livewire-upload-finish="uploading = false"
+                                                x-on:livewire-upload-cancel="uploading = false"
+                                                x-on:livewire-upload-error="uploading = false"
+                                                x-on:livewire-upload-progress="progress = $event.detail.progress">
+                                                <div class="text-center mb-3">
+                                                    <div
+                                                        class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center mx-auto mb-2">
+                                                        <svg class="w-6 h-6 text-yellow-600 dark:text-yellow-400"
+                                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                                        </svg>
+                                                    </div>
+                                                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                        Upload File LPJ</p>
+                                                </div>
+
+                                                <input type="file" wire:model="lpjFile" accept=".pdf,.doc,.docx"
+                                                    class="block w-full text-sm text-gray-500 dark:text-gray-400
+                                                        file:mr-4 file:py-2 file:px-4
+                                                        file:rounded-lg file:border-0
+                                                        file:text-sm file:font-semibold
+                                                        file:bg-blue-50 file:text-blue-700
+                                                        hover:file:bg-blue-100
+                                                        dark:file:bg-blue-900/30 dark:file:text-blue-400" />
+
+                                                {{-- Progress Bar --}}
+                                                <div x-show="uploading"
+                                                    class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                                    <div class="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+                                                        :style="'width: ' + progress + '%'"></div>
+                                                </div>
+
+                                                <div x-show="!$wire.lpjFile">
+                                                    @error('lpjFile')
+                                                        <span class="text-red-500 text-xs">{{ $message }}</span>
+                                                    @enderror
+                                                </div>
+
+                                                <button type="button" wire:click="uploadLpj(selectedActivity.id)"
+                                                    wire:loading.attr="disabled"
+                                                    wire:loading.class="opacity-50 cursor-not-allowed"
+                                                    class="w-full py-2 px-4 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                                                    <svg wire:loading wire:target="uploadLpj"
+                                                        class="animate-spin h-4 w-4"
+                                                        xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12"
+                                                            r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor"
+                                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                        </path>
+                                                    </svg>
+                                                    <span wire:loading.remove wire:target="uploadLpj">Upload & Setujui
+                                                        LPJ</span>
+                                                    <span wire:loading wire:target="uploadLpj">Mengupload...</span>
+                                                </button>
+                                            </form>
+                                        </template>
+
+                                        {{-- Jika activity belum selesai (Belum Dimulai atau Berlangsung) --}}
+                                        <template
+                                            x-if="getStatus(selectedActivity.start_date, selectedActivity.end_date).text !== 'Selesai' && (!selectedActivity.lpj || selectedActivity.lpj.status !== 'Disetujui')">
+                                            <div
+                                                class="text-center text-gray-500 dark:text-gray-400 flex flex-col items-center justify-center">
+                                                <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2"
+                                                    :class="getStatus(selectedActivity.start_date, selectedActivity.end_date)
+                                                        .text === 'Belum Dimulai' ?
+                                                        'bg-gray-100 dark:bg-gray-800' :
+                                                        'bg-blue-100 dark:bg-blue-900/30'">
+                                                    <svg class="w-6 h-6" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                        :class="getStatus(selectedActivity.start_date, selectedActivity
+                                                                .end_date).text === 'Belum Dimulai' ?
+                                                            'text-gray-500 dark:text-gray-400' :
+                                                            'text-blue-600 dark:text-blue-400'">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                </div>
+                                                <span class="text-sm font-medium mb-1"
+                                                    x-text="'Kegiatan ' + getStatus(selectedActivity.start_date, selectedActivity.end_date).text"></span>
+                                                <span class="text-xs text-gray-400 dark:text-gray-500">Upload LPJ
+                                                    tersedia setelah kegiatan selesai</span>
                                             </div>
                                         </template>
                                     </div>

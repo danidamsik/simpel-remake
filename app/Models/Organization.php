@@ -15,12 +15,10 @@ class Organization extends Model
         'lembaga',
         'number_phone',
         'email',
-        'current_balance',
         'logo_path',
     ];
 
     protected $casts = [
-        'current_balance' => 'decimal:2',
     ];
 
     public function user()

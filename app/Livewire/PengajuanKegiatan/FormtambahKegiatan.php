@@ -19,27 +19,16 @@ class FormtambahKegiatan extends Component
     use WithFileUploads;
 
     // Organization
-    public $searchOrganization = '';
-    public $selectedOrganizationId = null;
-    public $walletInfo = null;
+    public $searchOrganization, $selectedOrganizationId = null, $walletInfo = null;
 
     // Proposal
-    public $proposalFile;
-    public $fundsApproved = '';
-    public $dateReceived;
+    public $proposalFile, $fundsApproved, $dateReceived;
 
     // Activity
-    public $activityName = '';
-    public $startDate;
-    public $endDate;
-    public $location = '';
-    public $description = '';
-    public $personResponsible = '';
-    public $numberPr = '';
+    public $activityName, $startDate, $endDate, $location, $description, $personResponsible, $numberPr;
 
     // Expense
-    public $proofFile;
-    public $taxType = 'PPh22';
+    public $proofFile, $taxType = 'PPh22';
 
     // Period
     public $activePeriod = null;
@@ -47,12 +36,10 @@ class FormtambahKegiatan extends Component
     protected function rules()
     {
         return [
-            // Proposal
             'proposalFile' => 'required|file|mimes:pdf,doc,docx|max:10240',
             'fundsApproved' => 'required|numeric|min:1',
             'dateReceived' => 'required|date',
 
-            // Activity
             'activityName' => 'required|string|max:255',
             'startDate' => 'required|date',
             'endDate' => 'required|date|after_or_equal:startDate',
@@ -61,7 +48,6 @@ class FormtambahKegiatan extends Component
             'personResponsible' => 'required|string|max:255',
             'numberPr' => 'required|string|max:20',
 
-            // Expense
             'proofFile' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'taxType' => 'required|in:PPh22,PPh23,Ppn',
         ];
@@ -70,7 +56,6 @@ class FormtambahKegiatan extends Component
     protected function messages()
     {
         return [
-            // Proposal
             'proposalFile.required' => 'File proposal wajib diunggah.',
             'proposalFile.file' => 'File proposal harus berupa file.',
             'proposalFile.mimes' => 'File proposal harus berformat PDF, DOC, atau DOCX.',
@@ -83,7 +68,6 @@ class FormtambahKegiatan extends Component
             'dateReceived.required' => 'Tanggal diterima wajib diisi.',
             'dateReceived.date' => 'Format tanggal diterima tidak valid.',
 
-            // Activity
             'activityName.required' => 'Nama kegiatan wajib diisi.',
             'activityName.string' => 'Nama kegiatan harus berupa teks.',
             'activityName.max' => 'Nama kegiatan maksimal 255 karakter.',
@@ -107,7 +91,6 @@ class FormtambahKegiatan extends Component
             'numberPr.string' => 'Nomor WhatsApp harus berupa teks.',
             'numberPr.max' => 'Nomor WhatsApp maksimal 20 karakter.',
 
-            // Expense
             'proofFile.file' => 'Bukti pengeluaran harus berupa file.',
             'proofFile.mimes' => 'Bukti pengeluaran harus berformat PDF, JPG, JPEG, atau PNG.',
             'proofFile.max' => 'Ukuran bukti pengeluaran maksimal 5MB.',
