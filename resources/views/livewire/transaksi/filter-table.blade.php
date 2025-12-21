@@ -1,12 +1,23 @@
-<div x-data="expenseDetailModal">
+<div x-data="transactionTable" @close-add-modal.window="$wire.showAddModal = false">
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-5 border border-gray-200 dark:border-gray-700">
+        {{-- Flash Messages --}}
+        @if (session()->has('success'))
+            <div
+                class="mb-4 p-4 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 text-green-700 dark:text-green-300 rounded-lg flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                {{ session('success') }}
+            </div>
+        @endif
+
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <div>
                 <h2 class="text-xl font-bold text-gray-800 dark:text-white">Daftar Transaksi</h2>
                 <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Kelola pengeluaran dan transaksi lembaga</p>
             </div>
             <!-- Button Tambah Transaksi -->
-            <button
+            <button @click="openAddModal()"
                 class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-medium py-2.5 px-5 rounded-lg flex items-center justify-center transition duration-200 shadow-sm hover:shadow-md">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
@@ -175,12 +186,89 @@
     </div>
     @include('livewire.transaksi.component.modal-detail')
     @include('livewire.transaksi.component.modal-image')
+    @include('livewire.transaksi.component.modal-add')
 
 </div>
 
 @script
     <script>
-        Alpine.data('expenseDetailModal', () => ({
+        Alpine.data('transactionTable', () => ({
+            taxRates: {
+                'PPh22': 1.5,
+                'PPh23': 2,
+                'Ppn': 12
+            },
+
+            // Add Modal State & Logic
+            taxAmount: 0,
+            netAmount: 0,
+            displayAmount: '',
+
+            openAddModal() {
+                // Reset properties
+                $wire.selectedActivity = null;
+                $wire.selectedWallet = null;
+                $wire.amount = '';
+                $wire.description = '';
+                $wire.expenseDate = new Date().toISOString().split('T')[0];
+                $wire.taxType = 'PPh22';
+                $wire.taxPersentase = this.taxRates['PPh22'];
+                $wire.proofFile = null;
+
+                // Reset calculations and display
+                this.taxAmount = 0;
+                this.netAmount = 0;
+                this.displayAmount = '';
+
+                // Show modal
+                $wire.showAddModal = true;
+
+                // Watch for changes
+                this.$watch('$wire.taxType', (value) => {
+                    if (this.taxRates[value] !== undefined) {
+                        $wire.taxPersentase = this.taxRates[value];
+                        this.calculateValues();
+                    }
+                });
+
+                this.$watch('displayAmount', (value) => {
+                    // Remove non-digit chars
+                    let rawValue = value.replace(/\D/g, '');
+
+                    // Update wire model directly
+                    $wire.amount = rawValue;
+
+                    // Format for display
+                    if (rawValue) {
+                        this.displayAmount = this.formatNumber(rawValue);
+                    } else {
+                        this.displayAmount = '';
+                    }
+                });
+
+                this.$watch('$wire.amount', (value) => {
+                    if (value && value !== this.displayAmount.replace(/\./g, '')) {
+                        this.displayAmount = this.formatNumber(value);
+                    }
+                    this.calculateValues();
+                });
+
+                this.$watch('$wire.taxPersentase', () => this.calculateValues());
+            },
+
+            formatNumber(num) {
+                return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            },
+
+            calculateValues() {
+                const amount = parseFloat($wire.amount) || 0;
+                const percentage = parseFloat($wire.taxPersentase) || 0;
+
+                this.taxAmount = amount * (percentage / 100);
+                this.netAmount = amount - this.taxAmount;
+            },
+
+            // Detail Modal State & Logic
             showModal: false,
             expenseDetail: null,
             loading: false,
@@ -223,6 +311,10 @@
             closeImageModal() {
                 this.showImageModal = false;
                 this.imageUrl = null;
+            },
+
+            init() {
+                if (typeof this.initModal === 'function') this.initModal();
             }
         }));
     </script>

@@ -5,7 +5,8 @@
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">Daftar Proposal</h2>
             <div class="flex items-center gap-4">
-                <a href="/pengajuan-kegiatan/tambah-kegiatan" wire:navigate class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                <a href="/pengajuan-kegiatan/tambah-kegiatan" wire:navigate
+                    class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                     Tambah Kegiatan
                 </a>
             </div>
@@ -185,110 +186,119 @@
 </div>
 
 @script
-<script>
-    Alpine.data('proposalTable', () => ({
-        open: false,
-        selectedActivity: null,
-        loading: false,
+    <script>
+        Alpine.data('proposalTable', () => ({
+            open: false,
+            selectedActivity: null,
+            loading: false,
 
-        async openModal(activityId) {
-            this.selectedActivity = null;
-            this.loading = true;
-            this.open = true;
-
-            try {
-                this.selectedActivity = await $wire.getActivityDetails(activityId);
-            } catch (error) {
-                console.error('Error fetching activity details:', error);
-                this.open = false;
-            } finally {
-                this.loading = false;
-            }
-        },
-
-        closeModal() {
-            this.open = false;
-            this.selectedActivity = null;
-            this.loading = false;
-        },
-
-        formatDate(dateString) {
-            if (!dateString) return '-';
-            
-            try {
-                const date = new Date(dateString);
-                if (isNaN(date.getTime())) return '-';
-                
-                return date.toLocaleDateString('id-ID', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric'
+            init() {
+                // Listen for LPJ upload event to refresh data
+                Livewire.on('lpj-uploaded', async (data) => {
+                    if (this.selectedActivity && this.selectedActivity.id === data.activityId) {
+                        // Refresh activity details in modal
+                        this.selectedActivity = await $wire.getActivityDetails(data.activityId);
+                    }
                 });
-            } catch (error) {
-                console.error('Error formatting date:', error);
-                return '-';
-            }
-        },
+            },
 
-        formatMoney(amount) {
-            try {
-                return new Intl.NumberFormat('id-ID', {
-                    style: 'currency',
-                    currency: 'IDR',
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0
-                }).format(amount || 0);
-            } catch (error) {
-                console.error('Error formatting money:', error);
-                return 'Rp 0';
-            }
-        },
+            async openModal(activityId) {
+                this.selectedActivity = null;
+                this.loading = true;
+                this.open = true;
 
-        getStatus(start, end) {
-            if (!start || !end) {
-                return {
-                    text: '-',
-                    class: 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200'
-                };
-            }
+                try {
+                    this.selectedActivity = await $wire.getActivityDetails(activityId);
+                } catch (error) {
+                    console.error('Error fetching activity details:', error);
+                    this.open = false;
+                } finally {
+                    this.loading = false;
+                }
+            },
 
-            try {
-                const now = new Date();
-                now.setHours(0, 0, 0, 0);
-                
-                const startDate = new Date(start);
-                startDate.setHours(0, 0, 0, 0);
-                
-                const endDate = new Date(end);
-                endDate.setHours(23, 59, 59, 999);
+            closeModal() {
+                this.open = false;
+                this.selectedActivity = null;
+                this.loading = false;
+            },
 
-                if (startDate > now) {
+            formatDate(dateString) {
+                if (!dateString) return '-';
+
+                try {
+                    const date = new Date(dateString);
+                    if (isNaN(date.getTime())) return '-';
+
+                    return date.toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric'
+                    });
+                } catch (error) {
+                    console.error('Error formatting date:', error);
+                    return '-';
+                }
+            },
+
+            formatMoney(amount) {
+                try {
+                    return new Intl.NumberFormat('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR',
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
+                    }).format(amount || 0);
+                } catch (error) {
+                    console.error('Error formatting money:', error);
+                    return 'Rp 0';
+                }
+            },
+
+            getStatus(start, end) {
+                if (!start || !end) {
                     return {
-                        text: 'Belum Dimulai',
+                        text: '-',
                         class: 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200'
                     };
                 }
-                
-                if (now >= startDate && now <= endDate) {
+
+                try {
+                    const now = new Date();
+                    now.setHours(0, 0, 0, 0);
+
+                    const startDate = new Date(start);
+                    startDate.setHours(0, 0, 0, 0);
+
+                    const endDate = new Date(end);
+                    endDate.setHours(23, 59, 59, 999);
+
+                    if (startDate > now) {
+                        return {
+                            text: 'Belum Dimulai',
+                            class: 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200'
+                        };
+                    }
+
+                    if (now >= startDate && now <= endDate) {
+                        return {
+                            text: 'Berlangsung',
+                            class: 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300'
+                        };
+                    }
+
                     return {
-                        text: 'Berlangsung',
-                        class: 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300'
+                        text: 'Selesai',
+                        class: 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300'
+                    };
+                } catch (error) {
+                    console.error('Error getting status:', error);
+                    return {
+                        text: '-',
+                        class: 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200'
                     };
                 }
-                
-                return {
-                    text: 'Selesai',
-                    class: 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300'
-                };
-            } catch (error) {
-                console.error('Error getting status:', error);
-                return {
-                    text: '-',
-                    class: 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200'
-                };
             }
-        }
-    }));
-</script>
+        }));
+    </script>
 @endscript
-                
