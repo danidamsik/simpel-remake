@@ -58,6 +58,7 @@ if (darkMode) {
             }
         });
     </script>
+    @include('components.global.notification')
 </body>
 
 </html>

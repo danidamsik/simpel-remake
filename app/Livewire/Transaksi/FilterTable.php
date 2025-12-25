@@ -94,6 +94,9 @@ class FilterTable extends Component
         return Activity::with(['organization:id,name,lembaga', 'period:id,name'])
             ->where('start_date', '<=', $today)
             ->where('end_date', '>=', $today)
+            ->whereHas('period', function ($query) {
+                $query->where('status', true);
+            })
             ->where(function ($query) use ($search) {
                 $query->where('name', 'like', '%' . $search . '%')
                     ->orWhereHas('organization', function ($q) use ($search) {
@@ -110,14 +113,14 @@ class FilterTable extends Component
         $this->validate();
 
         if (!$this->selectedActivity) {
-            session()->flash('error', 'Pilih kegiatan terlebih dahulu.');
+            $this->dispatch('notify', message: 'Pilih kegiatan terlebih dahulu.', type: 'error');
             return;
         }
 
         $activity = Activity::find($this->selectedActivity['id']);
         
         if (!$activity) {
-            session()->flash('error', 'Kegiatan tidak ditemukan.');
+            $this->dispatch('notify', message: 'Kegiatan tidak ditemukan.', type: 'error');
             return;
         }
 
@@ -126,14 +129,14 @@ class FilterTable extends Component
             ->first();
 
         if (!$wallet) {
-            session()->flash('error', 'Wallet untuk organisasi ini belum tersedia.');
+            $this->dispatch('notify', message: 'Wallet untuk organisasi ini belum tersedia.', type: 'error');
             return;
         }
 
         $expenseAmount = (float) $this->amount;
 
         if ($wallet->balance < $expenseAmount) {
-            session()->flash('error', 'Saldo tidak mencukupi. Saldo tersedia: Rp ' . number_format($wallet->balance, 0, ',', '.'));
+            $this->dispatch('notify', message: 'Saldo tidak mencukupi. Saldo tersedia: Rp ' . number_format($wallet->balance, 0, ',', '.'), type: 'error');
             return;
         }
 
@@ -156,7 +159,7 @@ class FilterTable extends Component
         $wallet->decrement('balance', $expenseAmount);
         $this->showAddModal = false;
         
-        session()->flash('success', 'Transaksi berhasil ditambahkan');
+        $this->dispatch('notify', message: 'Transaksi berhasil ditambahkan', type: 'success');
     }
 
     #[Renderless]

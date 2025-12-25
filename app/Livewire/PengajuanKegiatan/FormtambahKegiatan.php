@@ -148,19 +148,16 @@ class FormtambahKegiatan extends Component
     {
         $this->validate();
 
-        // Validate organization selected
         if (!$this->selectedOrganizationId) {
             $this->addError('searchOrganization', 'Pilih organisasi terlebih dahulu.');
             return;
         }
 
-        // Validate active period
         if (!$this->activePeriod) {
             $this->addError('general', 'Tidak ada periode aktif.');
             return;
         }
 
-        // Validate wallet balance
         if (!$this->walletInfo) {
             $this->addError('fundsApproved', 'Organisasi belum memiliki wallet untuk periode ini.');
             return;
@@ -174,10 +171,8 @@ class FormtambahKegiatan extends Component
         DB::beginTransaction();
 
         try {
-            // Store proposal file
             $proposalPath = $this->proposalFile->store('proposals', 'public');
 
-            // 1. Create Proposal
             $proposal = Proposal::create([
                 'organization_id' => $this->selectedOrganizationId,
                 'proposal_file' => $proposalPath,
@@ -185,7 +180,6 @@ class FormtambahKegiatan extends Component
                 'date_received' => $this->dateReceived,
             ]);
 
-            // 2. Create Activity
             $activity = Activity::create([
                 'name' => $this->activityName,
                 'organization_id' => $this->selectedOrganizationId,
@@ -199,7 +193,6 @@ class FormtambahKegiatan extends Component
                 'number_pr' => $this->numberPr,
             ]);
 
-            // 3. Create LPJ (with null values as specified)
             Lpj::create([
                 'activity_id' => $activity->id,
                 'organization_id' => $this->selectedOrganizationId,
@@ -208,10 +201,8 @@ class FormtambahKegiatan extends Component
                 'file' => null,
             ]);
 
-            // 4. Update Wallet Balance
             $this->walletInfo->decrement('balance', $this->fundsApproved);
 
-            // 5. Create Expense
             $proofPath = null;
             if ($this->proofFile) {
                 $proofPath = $this->proofFile->store('expenses', 'public');

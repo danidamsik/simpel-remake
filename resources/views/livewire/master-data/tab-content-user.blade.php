@@ -2,9 +2,29 @@
     x-transition:enter-start="opacity-0 transform translate-y-4"
     x-transition:enter-end="opacity-100 transform translate-y-0">
 
-    <div class="mb-6">
-        <h2 class="text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-100">Data Bendahara</h2>
-        <p class="text-gray-600 dark:text-gray-300 text-sm">Kelola akun bendahara seluruh lembaga</p>
+    <div class="mb-6 flex justify-between items-end">
+        <div>
+            <h2 class="text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-100">Data Bendahara</h2>
+            <p class="text-gray-600 dark:text-gray-300 text-sm">Kelola akun bendahara seluruh lembaga</p>
+        </div>
+        <button
+            @click="
+                $wire.username = '';
+                $wire.email = '';
+                $wire.password = '';
+                $wire.password_confirmation = '';
+                $wire.profile = null;
+                $wire.existingProfile = null;
+                $wire.selectedUserId = null;
+                $wire.isEditMode = false;
+                $wire.showModal = true;
+            "
+            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm text-sm font-medium transition-colors flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Tambah Bendahara
+        </button>
     </div>
 
     <!-- Filter Section -->
@@ -53,6 +73,10 @@
                         class="py-3 px-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                         Lembaga
                     </th>
+                    <th
+                        class="py-3 px-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                        Aksi
+                    </th>
                 </tr>
             </thead>
 
@@ -67,7 +91,7 @@
                         <td class="py-3 px-4">
                             <div class="flex items-center">
                                 @if ($user->profile_path)
-                                    <img src="{{ asset('storage/profile/' . $user->profile_path) }}"
+                                    <img src="{{ asset('storage/' . $user->profile_path) }}"
                                         alt="{{ $user->username }}" class="h-10 w-10 rounded-full object-cover">
                                 @else
                                     <div
@@ -96,6 +120,28 @@
                                 <span class="text-gray-400 text-sm">-</span>
                             @endforelse
                         </td>
+
+                        <td class="py-3 px-4 text-right">
+                            <button
+                                @click="
+                                    $wire.selectedUserId = {{ $user->id }};
+                                    $wire.username = '{{ addslashes($user->username) }}';
+                                    $wire.email = '{{ addslashes($user->email) }}';
+                                    $wire.existingProfile = '{{ $user->profile_path }}';
+                                    console.log($wire.existingProfile);
+                                    $wire.profile = null;
+                                    $wire.password = '';
+                                    $wire.password_confirmation = '';
+                                    $wire.isEditMode = true;
+                                    $wire.showModal = true;
+                                "
+                                class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                            </button>
+                        </td>
                     </tr>
                 @empty
                     <tr>
@@ -116,4 +162,5 @@
     </div>
     <x-global.pagination :paginator="$users" />
     @include('livewire.master-data.component.modal-form-user')
+    @include('livewire.master-data.component.modal-credential-user')
 </div>
