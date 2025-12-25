@@ -61,7 +61,7 @@ class FilterTableProposal extends Component
     public function uploadLpj($activityId)
     {
         $this->validate([
-            'lpjFile' => 'required|file|mimes:pdf,doc,docx|max:10240', // max 10MB
+            'lpjFile' => 'required|file|mimes:pdf,doc,docx|max:10240', 
         ], [
             'lpjFile.required' => 'File LPJ wajib diupload.',
             'lpjFile.mimes' => 'File harus berformat PDF, DOC, atau DOCX.',
@@ -71,14 +71,12 @@ class FilterTableProposal extends Component
         $activity = Activity::find($activityId);
         
         if (!$activity) {
-            session()->flash('error', 'Kegiatan tidak ditemukan.');
+            $this->dispatch('notify', message: 'Kegiatan tidak ditemukan.', type: 'error');
             return;
         }
 
-        // Store file
         $filePath = $this->lpjFile->store('lpj', 'public');
 
-        // Update or create LPJ record
         Lpj::updateOrCreate(
             ['activity_id' => $activityId],
             [
@@ -89,13 +87,10 @@ class FilterTableProposal extends Component
             ]
         );
 
-        // Reset file input
         $this->reset('lpjFile');
 
-        // Dispatch event untuk refresh data di modal dan tabel
+        $this->dispatch('notify', message: 'LPJ berhasil diupload!', type: 'success');
         $this->dispatch('lpj-uploaded', activityId: $activityId);
-        
-        session()->flash('success', 'LPJ berhasil diupload dan disetujui.');
     }
 
 
@@ -104,7 +99,7 @@ class FilterTableProposal extends Component
         $activities = Activity::query()
             ->select(['id', 'name', 'location', 'organization_id', 'proposal_id', 'period_id', 'created_at'])
             ->with([
-                'organization:id,name,lembaga',
+                'organization:id,name,lembaga,logo_path',
                 'proposal:id,date_received,funds_approved',
                 'lpj:id,activity_id,status'
             ])

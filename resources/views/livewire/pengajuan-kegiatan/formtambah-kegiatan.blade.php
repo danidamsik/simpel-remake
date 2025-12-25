@@ -78,27 +78,104 @@
             {{-- Wallet Info --}}
             @if ($walletInfo)
                 <div
-                    class="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded">
-                    <h4 class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Informasi Rekening</h4>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-                        <div>
-                            <p class="text-gray-500 dark:text-gray-400">Bank</p>
-                            <p class="font-medium text-gray-900 dark:text-gray-200">{{ $walletInfo->bank_name ?? '-' }}
-                            </p>
+                    class="mt-4 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-800/50 rounded-xl overflow-hidden">
+                    {{-- Header --}}
+                    <div
+                        class="px-4 py-3 bg-emerald-100/50 dark:bg-emerald-900/30 border-b border-emerald-200 dark:border-emerald-800/50">
+                        <div class="flex items-center gap-2">
+                            <div class="p-1.5 bg-emerald-500 dark:bg-emerald-600 rounded-lg">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                </svg>
+                            </div>
+                            <h4 class="text-sm font-semibold text-emerald-900 dark:text-emerald-100">Informasi Rekening
+                            </h4>
                         </div>
-                        <div>
-                            <p class="text-gray-500 dark:text-gray-400">Nama Rekening</p>
-                            <p class="font-medium text-gray-900 dark:text-gray-200">{{ $walletInfo->account_name }}</p>
+                    </div>
+
+                    {{-- Content --}}
+                    <div class="p-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            {{-- Bank Info --}}
+                            <div class="flex items-start gap-3">
+                                <div
+                                    class="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-emerald-100 dark:border-emerald-800/50">
+                                    <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                    </svg>
+                                </div>
+                                <div class="min-w-0">
+                                    <p
+                                        class="text-[10px] uppercase tracking-wider font-semibold text-emerald-600 dark:text-emerald-500">
+                                        Bank</p>
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                        {{ $walletInfo->bank_name ?? '-' }}</p>
+                                </div>
+                            </div>
+
+                            {{-- Account Name --}}
+                            <div class="flex items-start gap-3">
+                                <div
+                                    class="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-emerald-100 dark:border-emerald-800/50">
+                                    <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                </div>
+                                <div class="min-w-0">
+                                    <p
+                                        class="text-[10px] uppercase tracking-wider font-semibold text-emerald-600 dark:text-emerald-500">
+                                        Nama Rekening</p>
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                        {{ $walletInfo->account_name }}</p>
+                                </div>
+                            </div>
+
+                            {{-- Account Number --}}
+                            <div class="flex items-start gap-3">
+                                <div
+                                    class="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-emerald-100 dark:border-emerald-800/50">
+                                    <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+                                    </svg>
+                                </div>
+                                <div class="min-w-0">
+                                    <p
+                                        class="text-[10px] uppercase tracking-wider font-semibold text-emerald-600 dark:text-emerald-500">
+                                        No. Rekening</p>
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white font-mono">
+                                        {{ $walletInfo->account_number }}</p>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <p class="text-gray-500 dark:text-gray-400">No. Rekening</p>
-                            <p class="font-medium text-gray-900 dark:text-gray-200">{{ $walletInfo->account_number }}
-                            </p>
-                        </div>
-                        <div>
-                            <p class="text-gray-500 dark:text-gray-400">Saldo Tersedia</p>
-                            <p class="font-semibold text-green-600 dark:text-green-400">Rp
-                                {{ number_format($walletInfo->balance, 0, ',', '.') }}</p>
+
+                        {{-- Balance Section --}}
+                        <div class="mt-4 pt-4 border-t border-emerald-200 dark:border-emerald-800/50">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <div class="p-2 bg-emerald-500 dark:bg-emerald-600 rounded-lg">
+                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <span class="text-sm font-medium text-emerald-700 dark:text-emerald-300">Saldo
+                                        Tersedia</span>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                                        Rp {{ number_format($walletInfo->balance, 0, ',', '.') }}
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -240,39 +317,80 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Bukti Pengeluaran</label>
-                    <input type="file" wire:model="proofFile" accept=".jpg,.jpeg,.png"
-                        class="w-full text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:bg-gray-50 file:text-gray-700 dark:file:bg-gray-600 dark:file:text-gray-300">
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Format: JPG, PNG saja (Max 5MB)</p>
 
-                    {{-- Loading indicator --}}
+                    {{-- Hidden File Input --}}
+                    <input type="file" wire:model="proofFile" accept=".jpg,.jpeg,.png" class="sr-only"
+                        id="proof-file-kegiatan">
+
+                    {{-- Upload Box - Show when no file --}}
+                    @if (!$proofFile)
+                        <label for="proof-file-kegiatan" wire:loading.class="hidden" wire:target="proofFile"
+                            class="flex flex-col items-center justify-center w-full py-5 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 group">
+                            <svg class="w-8 h-8 mb-2 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <p
+                                class="text-sm text-gray-500 dark:text-gray-400 group-hover:text-blue-500 transition-colors">
+                                <span class="font-semibold">Klik untuk upload</span>
+                            </p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">JPG, PNG (Max. 5MB)</p>
+                        </label>
+                    @endif
+
+                    {{-- Loading Indicator --}}
                     <div wire:loading wire:target="proofFile"
-                        class="mt-2 flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400">
-                        <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                            </path>
-                        </svg>
-                        <span>Mengupload...</span>
+                        class="w-full py-6 border-2 border-blue-300 dark:border-blue-600 rounded-lg bg-blue-50 dark:bg-blue-900/30">
+                        <div class="flex flex-col items-center justify-center">
+                            <svg class="animate-spin h-8 w-8 text-blue-500 mb-2" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10"
+                                    stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                            <p class="text-sm text-blue-600 dark:text-blue-400 font-medium">Mengupload file...</p>
+                        </div>
                     </div>
 
-                    {{-- Image Preview --}}
+                    {{-- Image Preview - Filament Style --}}
                     @if ($proofFile)
-                        <div wire:loading.remove wire:target="proofFile" class="mt-2">
-                            <div class="relative inline-block">
-                                <img src="{{ $proofFile->temporaryUrl() }}" alt="Preview Bukti"
-                                    class="max-h-40 rounded border border-gray-300 dark:border-gray-600 object-contain">
+                        <div wire:loading.remove wire:target="proofFile">
+                            <div
+                                class="flex items-center gap-3 w-full p-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700">
+                                {{-- Thumbnail --}}
+                                <div class="flex-shrink-0">
+                                    <div
+                                        class="w-16 h-16 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-800">
+                                        <img src="{{ $proofFile->temporaryUrl() }}"
+                                            class="w-full h-full object-cover" alt="Preview">
+                                    </div>
+                                </div>
+                                {{-- File Info --}}
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                        {{ $proofFile->getClientOriginalName() }}
+                                    </p>
+                                    <p
+                                        class="text-xs text-green-600 dark:text-green-400 flex items-center gap-1 mt-0.5">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        Siap diupload
+                                    </p>
+                                </div>
+                                {{-- Remove Button --}}
                                 <button type="button" wire:click="$set('proofFile', null)"
-                                    class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors flex-shrink-0">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                 </button>
                             </div>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                {{ $proofFile->getClientOriginalName() }}</p>
                         </div>
                     @endif
 

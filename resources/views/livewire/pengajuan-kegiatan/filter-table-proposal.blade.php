@@ -115,11 +115,17 @@
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                             <td class="py-4 px-4">
                                 <div class="flex items-center gap-3">
-                                    <div
-                                        class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
-                                        <span
-                                            class="text-sm font-medium text-blue-600 dark:text-blue-300">{{ substr($activity->organization->name ?? '?', 0, 2) }}</span>
-                                    </div>
+                                    @if ($activity->organization->logo_path)
+                                        <img src="{{ asset('storage/' . $activity->organization->logo_path) }}"
+                                            alt="{{ $activity->organization->name }}"
+                                            class="w-8 h-8 rounded-full object-cover">
+                                    @else
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
+                                            <span
+                                                class="text-sm font-medium text-blue-600 dark:text-blue-300">{{ substr($activity->organization->name ?? '?', 0, 2) }}</span>
+                                        </div>
+                                    @endif
                                     <div class="flex flex-col">
                                         <span
                                             class="text-sm font-medium text-gray-900 dark:text-gray-200">{{ $activity->organization->name }}</span>
@@ -193,10 +199,8 @@
             loading: false,
 
             init() {
-                // Listen for LPJ upload event to refresh data
                 Livewire.on('lpj-uploaded', async (data) => {
                     if (this.selectedActivity && this.selectedActivity.id === data.activityId) {
-                        // Refresh activity details in modal
                         this.selectedActivity = await $wire.getActivityDetails(data.activityId);
                     }
                 });

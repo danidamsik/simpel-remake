@@ -57,7 +57,7 @@
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-3">
                                     @if ($lembaga['logo_path'])
-                                        <img src="{{ asset('storage/profile/' . $lembaga['logo_path']) }}"
+                                        <img src="{{ asset('storage/' . $lembaga['logo_path']) }}"
                                             alt="{{ $lembaga['organization_name'] }}"
                                             class="w-10 h-10 rounded-lg object-cover">
                                     @else

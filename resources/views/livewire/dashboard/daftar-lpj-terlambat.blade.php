@@ -1,7 +1,5 @@
 <div class="bg-white dark:bg-gray-900 text-slate-900 dark:text-slate-100 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm"
     x-data="lpjTerlambatData()">
-    
-    @include('livewire.dashboard.component.notification-toast')
 
     <h3 class="text-lg font-semibold mb-4">Daftar LPJ Terlambat</h3>
 
@@ -69,7 +67,7 @@
                                     <span class="text-slate-400">-</span>
                                 @endif
                             </td>
-                            
+
                             <td class="px-3 py-2 font-medium {{ $statusColor }}">
                                 {{ $status ?? '-' }}
                             </td>
@@ -197,24 +195,6 @@
                 };
             },
 
-            // Notification
-            notification: {
-                show: false,
-                type: '', // 'success' or 'error'
-                message: ''
-            },
-
-            showNotification(type, message) {
-                this.notification = {
-                    show: true,
-                    type,
-                    message
-                };
-                setTimeout(() => {
-                    this.notification.show = false;
-                }, 4000);
-            },
-
             async sendWhatsApp() {
                 this.sending = true;
                 try {
@@ -226,12 +206,21 @@
 
                     if (result.success) {
                         this.closeMessageModal();
-                        this.showNotification('success', 'Pesan berhasil dikirim!');
+                        $dispatch('notify', {
+                            message: 'Pesan berhasil dikirim!',
+                            type: 'success'
+                        });
                     } else {
-                        this.showNotification('error', 'Gagal: ' + result.message);
+                        $dispatch('notify', {
+                            message: 'Gagal: ' + result.message,
+                            type: 'error'
+                        });
                     }
                 } catch (error) {
-                    this.showNotification('error', 'Terjadi kesalahan: ' + error.message);
+                    $dispatch('notify', {
+                        message: 'Terjadi kesalahan: ' + error.message,
+                        type: 'error'
+                    });
                 } finally {
                     this.sending = false;
                 }

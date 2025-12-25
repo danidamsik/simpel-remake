@@ -72,7 +72,7 @@
                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                         <td class="py-3 px-4">
                             @if ($org->logo_path)
-                                <img src="{{ asset('storage/profile/' . $org->logo_path) }}" alt="{{ $org->name }}"
+                                <img src="{{ asset('storage/' . $org->logo_path) }}" alt="{{ $org->name }}"
                                     class="h-10 w-10 rounded-lg object-cover">
                             @else
                                 <div

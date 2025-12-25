@@ -35,13 +35,6 @@
 
             {{-- Body --}}
             <div class="px-6 py-5 space-y-5 max-h-[70vh] overflow-y-auto">
-                {{-- Flash Messages --}}
-                @if (session()->has('error'))
-                    <div
-                        class="p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg text-sm">
-                        {{ session('error') }}
-                    </div>
-                @endif
 
                 {{-- Activity Search (Full Width) --}}
                 <div class="space-y-2">
@@ -206,91 +199,179 @@
                     @enderror
                 </div>
 
-                {{-- Two Column Layout --}}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    {{-- Left Column --}}
-                    <div class="space-y-5">
-                        {{-- Amount (Masked) --}}
-                        <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                Jumlah (Bruto) <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative group">
-                                <span
-                                    class="absolute left-3 top-2.5 text-gray-500 dark:text-gray-400 font-medium group-focus-within:text-blue-500 transition-colors">Rp</span>
-                                <input type="text" x-model="displayAmount"
-                                    class="w-full border outline-none border-gray-300 dark:border-gray-600 rounded-xl py-2.5 pl-10 pr-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 transition-all shadow-sm"
-                                    placeholder="0" />
-                            </div>
-                            @error('amount')
-                                <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
-                            @enderror
+                {{-- Form Grid - 2 Columns --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {{-- Amount (Masked) --}}
+                    <div class="space-y-1.5">
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                            Jumlah (Bruto) <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative group">
+                            <span
+                                class="absolute left-3 top-1.5 text-gray-500 dark:text-gray-400 font-medium group-focus-within:text-blue-500 transition-colors">Rp</span>
+                            <input type="text" x-model="displayAmount"
+                                class="w-full border outline-none border-gray-300 dark:border-gray-600 rounded-xl py-1.5 pl-10 pr-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 transition-all shadow-sm"
+                                placeholder="0" />
                         </div>
+                        @error('amount')
+                            <span class="text-red-500 text-xs block">{{ $message }}</span>
+                        @enderror
+                    </div>
 
-                        {{-- Expense Date --}}
-                        <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                Tanggal Pengeluaran <span class="text-red-500">*</span>
-                            </label>
-                            <input type="date" wire:model="expenseDate"
-                                class="w-full border outline-noneborder-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm transition-all" />
-                            @error('expenseDate')
-                                <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
-                            @enderror
+                    {{-- Tax Type Combined --}}
+                    <div class="space-y-1.5">
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Jenis Pajak</label>
+                        <div class="flex rounded-xl shadow-sm">
+                            <select wire:model="taxType"
+                                class="w-full border border-gray-300 dark:border-gray-600 rounded-l-xl rounded-r-none py-2.5 outline-none px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm transition-all cursor-pointer relative z-10">
+                                <option value="PPh22">PPh 22</option>
+                                <option value="PPh23">PPh 23</option>
+                                <option value="Ppn">PPN</option>
+                            </select>
+                            <div
+                                class="flex items-center justify-center px-4 rounded-r-xl bg-blue-50 dark:bg-blue-900/40 border border-l-0 border-gray-300 dark:border-gray-600 text-blue-700 dark:text-blue-300 font-medium text-sm min-w-[80px]">
+                                <span x-text="$wire.taxPersentase"></span>%
+                            </div>
                         </div>
                     </div>
 
-                    {{-- Right Column --}}
-                    <div class="space-y-5">
-                        {{-- Tax Type & Percentage (Info) --}}
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="space-y-2">
-                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Jenis
-                                    Pajak</label>
-                                <select wire:model="taxType"
-                                    class="w-full border border-gray-300 dark:border-gray-600 rounded-xl py-2.5 outline-none px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm shadow-sm transition-all cursor-pointer">
-                                    <option value="PPh22">PPh 22</option>
-                                    <option value="PPh23">PPh 23</option>
-                                    <option value="Ppn">PPN</option>
-                                </select>
-                            </div>
-                            <div class="space-y-2">
-                                <label
-                                    class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Persentase</label>
-                                <div
-                                    class="flex items-center h-[42px] w-full px-4 rounded-xl bg-blue-50 dark:bg-blue-900/40 border border-blue-100 dark:border-blue-800 text-blue-700 dark:text-blue-300 font-medium text-sm">
-                                    <span x-text="$wire.taxPersentase"></span>%
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Proof File --}}
-                        <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Bukti
-                                Transaksi</label>
-                            <div class="relative">
-                                <input type="file" wire:model="proofFile" accept=".jpg,.jpeg,.png,.pdf"
-                                    class="block w-full text-xs text-gray-500 dark:text-gray-400
-                                file:mr-3 file:py-2 file:px-4
-                                file:rounded-full file:border-0
-                                file:text-xs file:font-semibold
-                                file:bg-blue-50 file:text-blue-700
-                                hover:file:bg-blue-100 active:file:bg-blue-200
-                                dark:file:bg-blue-900/30 dark:file:text-blue-400
-                                cursor-pointer file:cursor-pointer file:transition-colors" />
-                            </div>
-                            @error('proofFile')
-                                <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
-                            @enderror
-                        </div>
+                    {{-- Expense Date --}}
+                    <div class="space-y-1.5 md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                            Tanggal Pengeluaran <span class="text-red-500">*</span>
+                        </label>
+                        <input type="date" wire:model="expenseDate"
+                            class="w-full border outline-none border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm transition-all" />
+                        @error('expenseDate')
+                            <span class="text-red-500 text-xs block">{{ $message }}</span>
+                        @enderror
                     </div>
                 </div>
 
+                {{-- Proof File with Preview - Full Width --}}
+                <div class="space-y-2" x-data="{
+                    previewUrl: null,
+                    isImage: false,
+                    fileName: null,
+                    handleFileSelect(event) {
+                        const file = event.target.files[0];
+                        if (file) {
+                            this.fileName = file.name;
+                            const imageTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                            if (imageTypes.includes(file.type)) {
+                                this.isImage = true;
+                                this.previewUrl = URL.createObjectURL(file);
+                            } else {
+                                this.isImage = false;
+                                this.previewUrl = null;
+                            }
+                        }
+                    },
+                    clearFile() {
+                        this.previewUrl = null;
+                        this.isImage = false;
+                        this.fileName = null;
+                        $wire.proofFile = null;
+                        this.$refs.fileInput.value = '';
+                    }
+                }">
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                        Bukti Transaksi
+                    </label>
+
+                    {{-- Upload Area Container --}}
+                    <div class="relative">
+                        {{-- File Input (Hidden) --}}
+                        <input type="file" wire:model="proofFile" x-ref="fileInput"
+                            @change="handleFileSelect($event)" accept=".jpg,.jpeg,.png,.pdf" class="sr-only"
+                            id="proof-file-input" />
+
+                        {{-- Upload Box - Only show when no file selected and not loading --}}
+                        <label for="proof-file-input" x-show="!previewUrl && !fileName" wire:loading.class="hidden"
+                            wire:target="proofFile"
+                            class="flex flex-col items-center justify-center w-full py-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 group">
+                            <svg class="w-10 h-10 mb-2 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <p
+                                class="text-sm text-gray-500 dark:text-gray-400 group-hover:text-blue-500 transition-colors">
+                                <span class="font-semibold">Klik untuk upload bukti</span>
+                            </p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">JPG, PNG atau PDF (Max. 5MB)</p>
+                        </label>
+
+                        {{-- Loading Indicator - Centered properly --}}
+                        <div wire:loading wire:target="proofFile"
+                            class="w-full py-8 border-2 border-blue-300 dark:border-blue-600 rounded-xl bg-blue-50 dark:bg-blue-900/30">
+                            <div class="flex flex-col items-center justify-center">
+                                <svg class="animate-spin h-10 w-10 text-blue-500 mb-3" fill="none"
+                                    viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10"
+                                        stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                    </path>
+                                </svg>
+                                <p class="text-sm text-blue-600 dark:text-blue-400 font-medium">Mengupload file...</p>
+                                <p class="text-xs text-blue-500 dark:text-blue-500 mt-1">Mohon tunggu sebentar</p>
+                            </div>
+                        </div>
+
+                        {{-- Image Preview - Filament Style --}}
+                        <div x-show="previewUrl && isImage" wire:loading.remove wire:target="proofFile" x-transition
+                            class="relative">
+                            <div
+                                class="flex items-center gap-3 w-full p-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700">
+                                {{-- Thumbnail --}}
+                                <div class="relative flex-shrink-0 group/thumb">
+                                    <div
+                                        class="w-16 h-16 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-800">
+                                        <img :src="previewUrl" class="w-full h-full object-cover" alt="Preview">
+                                    </div>
+                                </div>
+                                {{-- File Info --}}
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate"
+                                        x-text="fileName"></p>
+                                    <p
+                                        class="text-xs text-green-600 dark:text-green-400 flex items-center gap-1 mt-0.5">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        Siap diupload
+                                    </p>
+                                </div>
+                                {{-- Remove Button --}}
+                                <button type="button" @click="clearFile()"
+                                    class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors flex-shrink-0">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    @error('proofFile')
+                        <span class="text-red-500 text-xs block">{{ $message }}</span>
+                    @enderror
+                </div>
+
                 {{-- Summary Card --}}
-                <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-                    <h4
-                        class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b border-gray-200 dark:border-gray-600 pb-2">
-                        Rincian Perhitungan</h4>
+                <div
+                    class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-800/50 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                    <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                        Rincian Perhitungan
+                    </h4>
                     <div class="space-y-2 text-sm">
                         <div class="flex justify-between items-center">
                             <span class="text-gray-600 dark:text-gray-400">Jumlah Bruto</span>
@@ -303,7 +384,7 @@
                                     x-text="taxAmount.toLocaleString('id-ID')"></span></span>
                         </div>
                         <div
-                            class="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-gray-600">
+                            class="flex justify-between items-center pt-3 mt-1 border-t border-gray-200 dark:border-gray-600">
                             <span class="font-bold text-gray-800 dark:text-white">Jumlah Bersih (Net)</span>
                             <span class="font-bold text-green-600 dark:text-green-400 text-lg">Rp <span
                                     x-text="netAmount.toLocaleString('id-ID')"></span></span>
@@ -312,11 +393,11 @@
                 </div>
 
                 {{-- Description (Full Width) --}}
-                <div class="space-y-2">
+                <div class="space-y-1.5">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Deskripsi</label>
                     <textarea wire:model="description" rows="2"
-                        class="w-full border outline-none border-gray-300 dark:border-gray-600 rounded-lg py-2.5 px-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 resize-none"
-                        placeholder="Keterangan pengeluaran..."></textarea>
+                        class="w-full border outline-none border-gray-300 dark:border-gray-600 rounded-xl py-2.5 px-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 resize-none"
+                        placeholder="Keterangan pengeluaran (opsional)..."></textarea>
                 </div>
             </div>
 

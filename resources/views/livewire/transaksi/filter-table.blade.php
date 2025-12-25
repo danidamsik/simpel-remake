@@ -1,15 +1,5 @@
 <div x-data="transactionTable" @close-add-modal.window="$wire.showAddModal = false">
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-5 border border-gray-200 dark:border-gray-700">
-        {{-- Flash Messages --}}
-        @if (session()->has('success'))
-            <div
-                class="mb-4 p-4 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 text-green-700 dark:text-green-300 rounded-lg flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                {{ session('success') }}
-            </div>
-        @endif
 
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <div>
@@ -283,14 +273,20 @@
                     const data = await $wire.getExpenseDetail(expenseId);
 
                     if (data.error) {
-                        alert(data.message);
+                        $dispatch('notify', {
+                            message: data.message,
+                            type: 'error'
+                        });
                         this.showModal = false;
                     } else {
                         this.expenseDetail = data;
                     }
                 } catch (error) {
                     console.error('Error fetching expense detail:', error);
-                    alert('Terjadi kesalahan saat mengambil data');
+                    $dispatch('notify', {
+                        message: 'Terjadi kesalahan saat mengambil data',
+                        type: 'error'
+                    });
                     this.showModal = false;
                 } finally {
                     this.loading = false;
