@@ -72,7 +72,7 @@
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Username</label>
                     <div class="flex rounded-md shadow-sm">
                         <input type="text" readonly value="{{ $createdUsername }}" x-ref="usernameInput"
-                            class="flex-1 min-w-0 block w-full px-3 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 sm:text-sm focus:ring-0 focus:border-gray-300">
+                            class="flex-1 min-w-0 block w-full px-3 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 sm:text-sm focus:ring-0 focus:border-gray-300 outline-none">
                         <button type="button" @click="copyToClipboard($refs.usernameInput.value)"
                             class="inline-flex items-center px-4 py-2 border border-l-0 border-gray-300 dark:border-gray-600 rounded-r-md bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -88,7 +88,7 @@
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
                     <div class="flex rounded-md shadow-sm">
                         <input type="text" readonly value="{{ $createdPassword }}" x-ref="passwordInput"
-                            class="flex-1 min-w-0 block w-full px-3 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 sm:text-sm focus:ring-0 focus:border-gray-300">
+                            class="flex-1 min-w-0 block w-full px-3 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 sm:text-sm focus:ring-0 focus:border-gray-300 outline-none">
                         <button type="button" @click="copyToClipboard($refs.passwordInput.value)"
                             class="inline-flex items-center px-4 py-2 border border-l-0 border-gray-300 dark:border-gray-600 rounded-r-md bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

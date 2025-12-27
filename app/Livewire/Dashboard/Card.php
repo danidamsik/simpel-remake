@@ -8,21 +8,17 @@ use App\Models\Activity;
 use App\Models\Lpj;
 use App\Models\Expense;
 use App\Models\Period;
+use App\Models\Wallet;
 
 class Card extends Component
 {
     public $selectedPeriodId;
-    public $periods, $totalProposals, $totalRunningActivities, $lpjApproved, $lpjPending, $totalExpenses, $totalTax;
+    public $totalProposals = 0, $totalRunningActivities = 0, $lpjApproved = 0, $lpjPending = 0, $totalExpenses = 0, $totalTax = 0, $totalWalletBalance = 0;
 
     public function mount()
     {
         $activePeriod = Period::where('status', true)->first();
-        if ($activePeriod) {
-            $this->selectedPeriodId = $activePeriod->id;
-        } else {
-            $firstPeriod = Period::first();
-            $this->selectedPeriodId = $firstPeriod ? $firstPeriod->id : null;
-        }
+        $this->selectedPeriodId = $activePeriod?->id;
 
         $this->loadData();
     }
@@ -34,7 +30,16 @@ class Card extends Component
 
     public function loadData()
     {
-        $this->periods = Period::orderBy('start_date', 'desc')->get();
+        if (!$this->selectedPeriodId) {
+            $this->totalProposals = 0;
+            $this->totalRunningActivities = 0;
+            $this->lpjApproved = 0;
+            $this->lpjPending = 0;
+            $this->totalExpenses = 0;
+            $this->totalTax = 0;
+            $this->totalWalletBalance = 0;
+            return;
+        }
 
         $this->totalProposals = Proposal::whereHas(
             'activity',
@@ -73,6 +78,8 @@ class Card extends Component
             fn($expense) =>
             $expense->amount * ($expense->tax_persentase / 100)
         );
+
+        $this->totalWalletBalance = Wallet::where('period_id', $this->selectedPeriodId)->sum('balance');
     }
 
     public function formatCurrency($value)

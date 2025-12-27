@@ -47,7 +47,6 @@ class DaftarLpjTerlambat extends Component
     public function sendMessage($activityId, $phoneNumber, $message)
     {
         try {
-            // Send message via Fonnte API
             $response = Http::withHeaders([
                 'Authorization' => env('FONNTE_TOKEN'),
             ])->post('https://api.fonnte.com/send', [
@@ -58,9 +57,7 @@ class DaftarLpjTerlambat extends Component
 
             $result = $response->json();
 
-            // Check if message sent successfully
             if ($response->successful() && ($result['status'] ?? false)) {
-                // Save to reminder_logs table
                 ReminderLog::create([
                     'activity_id' => $activityId,
                     'number' => $phoneNumber,

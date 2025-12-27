@@ -29,9 +29,9 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    // Relasi 1:1 dengan Organization
-    public function organization()
+    // Relasi 1:1 dengan OrganizationUser
+    public function organizationUser()
     {
-        return $this->hasMany(Organization::class);
+        return $this->hasOne(OrganizationUser::class);
     }
 }

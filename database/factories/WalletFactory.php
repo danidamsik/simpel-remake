@@ -30,7 +30,6 @@ class WalletFactory extends Factory
 
         return [
             'bank_name' => $bankName,
-            'account_name' => $this->faker->name(),
             'account_number' => $this->faker->numerify(str_repeat('#', $accountLength)),
             'balance' => $this->faker->numberBetween(500_000, 50_000_000),
         ];

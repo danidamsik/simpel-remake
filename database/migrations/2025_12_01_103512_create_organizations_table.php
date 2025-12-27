@@ -10,9 +10,14 @@ return new class extends Migration
     {
         Schema::create('organizations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('name');
-            $table->string('lembaga');
+            $table->enum('lembaga', [
+                'Fakultas Sains & Teknologi',
+                'Fakultas Tarbiyah',
+                'Fakultas Syariah',
+                'Fakultas Ushuluddin',
+                'Fakultas Ekonomi & Bisnis Islam',
+            ]);
             $table->string('number_phone');
             $table->string('email');
             $table->string('logo_path')->nullable();

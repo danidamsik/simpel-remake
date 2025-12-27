@@ -4,7 +4,9 @@ namespace App\Livewire\Dashboard;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Organization;
+use App\Models\Wallet;
 use Livewire\Attributes\Renderless;
+use Illuminate\Support\Facades\DB;
 
 class TableSaldoLembaga extends Component
 {
@@ -26,13 +28,19 @@ class TableSaldoLembaga extends Component
     public function getDatalembaga()
     {
         return Organization::with([
-            'wallets',
             'activities' => function ($query) {
                 $query->whereHas('period', function ($periodQuery) {
                     $periodQuery->where('status', true);
                 })->with(['lpj', 'expenses']);
             }
         ])
+            ->addSelect(['current_balance' => Wallet::select(DB::raw('COALESCE(SUM(wallets.balance), 0)'))
+                ->join('organization_users', 'organization_users.wallet_id', '=', 'wallets.id')
+                ->whereColumn('organization_users.organization_id', 'organizations.id')
+                ->whereHas('period', function ($q) {
+                    $q->where('status', true);
+                })
+            ])
             ->when($this->search, function ($query) {
                 $query->where('name', 'like', '%' . $this->search . '%');
             })
@@ -45,7 +53,7 @@ class TableSaldoLembaga extends Component
                     'total_funds_used' => $org->activities->sum(function ($activity) {
                         return $activity->expenses->sum('amount');
                     }),
-                    'current_balance' => $org->wallets->sum('balance'),
+                    'current_balance' => (float) $org->current_balance,
                 ];
             });
     }
