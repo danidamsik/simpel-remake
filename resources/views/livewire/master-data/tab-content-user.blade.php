@@ -29,6 +29,21 @@
 
     <!-- Filter Section -->
     <div class="mb-4 flex flex-col sm:flex-row gap-3">
+        <!-- Search Input -->
+        <div class="w-full sm:w-64">
+            <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </span>
+                <input type="text" wire:model.live.debounce.300ms="search"
+                    class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                    placeholder="Cari bendahara...">
+            </div>
+        </div>
+
         <!-- Filter Organization -->
         <div class="w-full sm:w-64">
             <select wire:model.live="filterOrganization"
@@ -91,8 +106,8 @@
                         <td class="py-3 px-4">
                             <div class="flex items-center">
                                 @if ($user->profile_path)
-                                    <img src="{{ asset('storage/' . $user->profile_path) }}"
-                                        alt="{{ $user->username }}" class="h-10 w-10 rounded-full object-cover">
+                                    <img src="{{ asset('storage/' . $user->profile_path) }}" alt="{{ $user->username }}"
+                                        class="h-10 w-10 rounded-full object-cover">
                                 @else
                                     <div
                                         class="h-10 w-10 rounded-full bg-gradient-to-br from-{{ $color }}-500 to-{{ $color }}-600 flex items-center justify-center text-white font-medium">
@@ -112,13 +127,9 @@
                         </td>
 
                         <td class="py-3 px-4">
-                            @forelse($user->organization as $org)
-                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    {{ $org->name }}{{ !$loop->last ? ',' : '' }}
-                                </span>
-                            @empty
-                                <span class="text-gray-400 text-sm">-</span>
-                            @endforelse
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                {{ $user->organizationUser->organization->name ?? '-' }}
+                            </span>
                         </td>
 
                         <td class="py-3 px-4 text-right">

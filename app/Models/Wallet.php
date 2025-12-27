@@ -10,7 +10,6 @@ class Wallet extends Model
     use HasFactory;
 
     protected $fillable = [
-        'organization_id',
         'period_id',
         'bank_name',
         'account_name',
@@ -18,9 +17,10 @@ class Wallet extends Model
         'balance',
     ];
 
-    public function organization()
+    // Relasi 1:1 dengan OrganizationUser
+    public function organizationUser()
     {
-        return $this->belongsTo(Organization::class);
+        return $this->hasOne(OrganizationUser::class);
     }
 
     public function period()

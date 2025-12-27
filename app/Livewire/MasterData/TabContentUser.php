@@ -15,6 +15,7 @@ class TabContentUser extends Component
 
     public $filterOrganization = '';
     public $filterPeriod = '';
+    public $search = '';
 
     // Modal Properties
     public $showModal = false;
@@ -65,9 +66,15 @@ class TabContentUser extends Component
         $this->resetPage();
     }
 
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
 
     public function store()
     {
+        sleep(10);
         $this->validate();
 
         $profilePath = null;
@@ -142,27 +149,26 @@ class TabContentUser extends Component
 
     public function render()
     {
-        $query = User::with([
-            'organization' => function ($q) {
-                if ($this->filterPeriod) {
-                    $q->whereHas('wallets', function ($walletQuery) {
-                        $walletQuery->where('period_id', $this->filterPeriod);
-                    });
-                }
-            }
-        ])
+        $query = User::with(['organizationUser.organization'])
             ->select('id', 'profile_path', 'username', 'email', 'role') 
             ->where('role', 'Bendahara');
 
         if ($this->filterOrganization) {
-            $query->whereHas('organization', function ($q) {
-                $q->where('id', $this->filterOrganization);
+            $query->whereHas('organizationUser', function ($q) {
+                $q->where('organization_id', $this->filterOrganization);
             });
         }
 
         if ($this->filterPeriod) {
-            $query->whereHas('organization.wallets', function ($q) {
+            $query->whereHas('organizationUser.wallet', function ($q) {
                 $q->where('period_id', $this->filterPeriod);
+            });
+        }
+
+        if ($this->search) {
+            $query->where(function ($q) {
+                $q->where('username', 'like', '%' . $this->search . '%')
+                  ->orWhere('email', 'like', '%' . $this->search . '%');
             });
         }
 

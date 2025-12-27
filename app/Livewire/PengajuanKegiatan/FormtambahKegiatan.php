@@ -128,8 +128,10 @@ class FormtambahKegiatan extends Component
         if ($organization && $this->activePeriod) {
             $this->searchOrganization = $organization->name;
 
-            $this->walletInfo = Wallet::where('organization_id', $id)
-                ->where('period_id', $this->activePeriod->id)
+            $this->walletInfo = Wallet::join('organization_users', 'organization_users.wallet_id', '=', 'wallets.id')
+                ->where('organization_users.organization_id', $id)
+                ->where('wallets.period_id', $this->activePeriod->id)
+                ->select('wallets.*')
                 ->first();
         }
     }

@@ -10,7 +10,6 @@ class Organization extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
         'name',
         'lembaga',
         'number_phone',
@@ -21,9 +20,10 @@ class Organization extends Model
     protected $casts = [
     ];
 
-    public function user()
+    // Relasi 1:N dengan OrganizationUser
+    public function organizationUsers()
     {
-        return $this->belongsTo(User::class);
+        return $this->hasMany(OrganizationUser::class);
     }
 
     // Relasi 1:N dengan Proposal
@@ -48,10 +48,5 @@ class Organization extends Model
     public function expenses()
     {
         return $this->hasMany(Expense::class);
-    }
-
-    public function wallets()
-    {
-        return $this->hasMany(Wallet::class);
     }
 }

@@ -37,8 +37,10 @@ class FilterTable extends Component
         if ($activity && isset($activity['id'])) {
             $activityModel = Activity::find($activity['id']);
             if ($activityModel) {
-                $wallet = Wallet::where('organization_id', $activityModel->organization_id)
-                    ->where('period_id', $activityModel->period_id)
+                $wallet = Wallet::join('organization_users', 'organization_users.wallet_id', '=', 'wallets.id')
+                    ->where('organization_users.organization_id', $activityModel->organization_id)
+                    ->where('wallets.period_id', $activityModel->period_id)
+                    ->select('wallets.*')
                     ->first();
                 
                 $this->selectedWallet = $wallet ? $wallet->toArray() : null;
@@ -124,8 +126,10 @@ class FilterTable extends Component
             return;
         }
 
-        $wallet = Wallet::where('organization_id', $activity->organization_id)
-            ->where('period_id', $activity->period_id)
+        $wallet = Wallet::join('organization_users', 'organization_users.wallet_id', '=', 'wallets.id')
+            ->where('organization_users.organization_id', $activity->organization_id)
+            ->where('wallets.period_id', $activity->period_id)
+            ->select('wallets.*')
             ->first();
 
         if (!$wallet) {
@@ -166,7 +170,7 @@ class FilterTable extends Component
     public function getExpenseDetail($id)
     {
         $expense = Expense::with([
-            'organization.wallets',
+            'organization',
             'activity.period'
         ])->find($id);
         
@@ -178,9 +182,11 @@ class FilterTable extends Component
         }
 
         $wallet = null;
-        if ($expense->organization && $expense->activity && $expense->activity->period) {
-            $wallet = $expense->organization->wallets()
-                ->where('period_id', $expense->activity->period_id)
+        if ($expense->activity && $expense->activity->period) {
+            $wallet = Wallet::join('organization_users', 'organization_users.wallet_id', '=', 'wallets.id')
+                ->where('organization_users.organization_id', $expense->organization_id)
+                ->where('wallets.period_id', $expense->activity->period_id)
+                ->select('wallets.*')
                 ->first();
         }
 

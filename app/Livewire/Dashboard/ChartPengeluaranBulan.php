@@ -21,7 +21,7 @@ class ChartPengeluaranBulan extends Component
 
     public function pengeluaranPerBulan(): array
     {
-        return Expense::select(
+        $results = Expense::select(
             DB::raw('MONTH(expense_date) as bulan'),
             DB::raw('SUM(amount) as total')
         )
@@ -29,9 +29,15 @@ class ChartPengeluaranBulan extends Component
                 $query->where('period_id', $this->periodId);
             })
             ->groupBy(DB::raw('MONTH(expense_date)'))
-            ->orderBy(DB::raw('MONTH(expense_date)'))
-            ->pluck('total')
+            ->pluck('total', 'bulan')
             ->toArray();
+
+        $data = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $data[] = isset($results[$i]) ? (float) $results[$i] : 0;
+        }
+
+        return $data;
     }
 
     public function render()

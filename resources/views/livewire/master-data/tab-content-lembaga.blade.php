@@ -2,17 +2,54 @@
     x-transition:enter-start="opacity-0 transform translate-y-4"
     x-transition:enter-end="opacity-100 transform translate-y-0" style="display: none;">
 
-    <div class="mb-6">
-        <h2 class="text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-100">Data Lembaga</h2>
-        <p class="text-gray-600 dark:text-gray-300 text-sm">Kelola informasi lembaga dan bendahara</p>
+    <div class="mb-6 flex justify-between items-end">
+        <div>
+            <h2 class="text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-100">Data Lembaga</h2>
+            <p class="text-gray-600 dark:text-gray-300 text-sm">Kelola informasi lembaga dan bendahara</p>
+        </div>
+        <button
+            @click="
+                $wire.name = '';
+                $wire.lembaga = '';
+                $wire.number_phone = '';
+                $wire.email = '';
+                $wire.logo = null;
+                $wire.selectedUserId = '';
+                $wire.bank_name = '';
+                $wire.account_name = '';
+                $wire.account_number = '';
+                $wire.balance = 0;
+                $wire.showModal = true;
+            "
+            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm text-sm font-medium transition-colors flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Tambah Lembaga
+        </button>
     </div>
 
     <!-- Filter Section -->
     <div class="mb-4 flex flex-col sm:flex-row gap-3">
+        <!-- Search Input -->
+        <div class="w-full sm:w-64">
+            <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </span>
+                <input type="text" wire:model.live.debounce.300ms="search"
+                    class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                    placeholder="Cari nama lembaga...">
+            </div>
+        </div>
+
         <!-- Filter Lembaga Type -->
         <div class="w-full sm:w-48">
             <select wire:model.live="filterLembaga"
-                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
                 <option value="">Semua Lembaga</option>
                 @foreach ($lembagaTypes as $type)
                     <option value="{{ $type }}">{{ $type }}</option>
@@ -23,7 +60,7 @@
         <!-- Filter Period -->
         <div class="w-full sm:w-48">
             <select wire:model.live="filterPeriod"
-                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
                 <option value="">Semua Periode</option>
                 @foreach ($periods as $period)
                     <option value="{{ $period->id }}">{{ $period->name }}</option>
@@ -67,7 +104,12 @@
                         $colors = ['blue', 'green', 'purple', 'pink', 'indigo', 'teal', 'orange', 'red'];
                         $color = $colors[$loop->index % count($colors)];
                         $initial = strtoupper(substr($org->name, 0, 1));
-                        $totalBalance = $org->wallets->sum('balance');
+
+                        $organizationUser = $org->organizationUsers->first(function ($ou) {
+                            return !is_null($ou->wallet);
+                        });
+                        $treasurerName = $organizationUser->user->username ?? '-';
+                        $walletBalance = $organizationUser->wallet->balance ?? 0;
                     @endphp
                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                         <td class="py-3 px-4">
@@ -94,7 +136,7 @@
 
                         <td class="py-3 px-4">
                             <div class="text-sm text-gray-900 dark:text-gray-100">
-                                {{ $org->user->username ?? '-' }}
+                                {{ $treasurerName }}
                             </div>
                         </td>
 
@@ -108,7 +150,7 @@
 
                         <td class="py-3 px-4">
                             <div class="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                                {{ 'Rp.' . number_format($totalBalance, 0, ',', '.') }}
+                                {{ 'Rp.' . number_format($walletBalance, 0, ',', '.') }}
                             </div>
                         </td>
                     </tr>
@@ -130,4 +172,5 @@
         </table>
     </div>
     <x-global.pagination :paginator="$organizations" />
+    @include('livewire.master-data.component.modal-form-lembaga')
 </div>

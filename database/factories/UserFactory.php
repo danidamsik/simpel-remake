@@ -23,32 +23,13 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
-        $namaIndonesia = [
-            'Ahmad Fadli',
-            'Siti Aisyah',
-            'Muhammad Rizki',
-            'Nurul Hidayah',
-            'Rizky Maulana',
-            'Putri Lestari',
-            'Dewi Kartika',
-            'Budi Santoso',
-            'Agus Pratama',
-            'Fajar Ramadhan',
-            'Intan Permata',
-            'Rina Oktaviani',
-            'Hendra Wijaya',
-            'Dian Pratiwi',
-            'Aditya Saputra',
-            'Nanda Febriani',
-        ];
-
         return [
-            'username' => fake()->unique()->randomElement($namaIndonesia),
+            'username' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
-            'profile_path' => 'profile/profile.jpg',
-            'role' => fake()->randomElement(['admin', 'Bendahara']),
+            'profile_path' => 'profile/profile.png',
+            'role' => 'Bendahara',
         ];
     }
 

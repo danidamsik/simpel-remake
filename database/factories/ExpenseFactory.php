@@ -36,7 +36,7 @@ class ExpenseFactory extends Factory
                 'PPh23',
                 'Ppn'
             ]),
-            'proof_file' => 'bukti_transfer/gambar.jpg',
+            'proof_file' => 'expenses/gambar.jpg',
         ];
     }
 }
