@@ -28,7 +28,7 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
-            'profile_path' => 'profile/profile.png',
+            'profile_path' => 'profile-user/profile.jpg',
             'role' => 'Bendahara',
         ];
     }

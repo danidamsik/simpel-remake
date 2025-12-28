@@ -2,9 +2,10 @@
 
 namespace App\Livewire\Profile;
 
-use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -23,7 +24,8 @@ class Informasi extends Component
 
     public function mount()
     {
-        $user = Auth::user() ?? User::first();
+        $user = Auth::user();
+        
         if ($user) {
             $this->username = $user->username;
             $this->email = $user->email;
@@ -32,37 +34,20 @@ class Informasi extends Component
 
     public function update()
     {
-        $user = Auth::user() ?? User::first();
+        $user = Auth::user();
 
         if (!$user) {
-             $this->dispatch('notify', message: 'User tidak ditemukan', type: 'error');
-             return;
+            $this->dispatch('notify', message: 'Anda harus login terlebih dahulu', type: 'error');
+            return redirect()->route('login');
         }
 
-        $rules = [
+        $this->validate([
             'username' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
+            'current_password' => 'nullable|required_with:password|current_password',
             'password' => 'nullable|min:8|confirmed',
             'photo' => 'nullable|image|max:1024', // 1MB Max
-        ];
-
-        // Conditional validation for current_password
-        if (Auth::check()) {
-            $rules['current_password'] = 'nullable|required_with:password|current_password';
-        } else {
-            $rules['current_password'] = 'nullable|required_with:password';
-        }
-
-        $this->validate($rules);
-
-        // Manual hash check for fallback user (mock login)
-        if (!Auth::check() && $this->password && $this->current_password) {
-            if (!\Illuminate\Support\Facades\Hash::check($this->current_password, $user->password)) {
-                throw \Illuminate\Validation\ValidationException::withMessages([
-                    'current_password' => 'Password saat ini salah.'
-                ]);
-            }
-        }
+        ]);
 
         $user->username = $this->username;
         $user->email = $this->email;
@@ -75,7 +60,7 @@ class Informasi extends Component
             if ($user->profile_path) {
                 Storage::disk('public')->delete($user->profile_path);
             }
-            $user->profile_path = $this->photo->store('profile', 'public');
+            $user->profile_path = $this->photo->store('profile-user', 'public');
         }
 
         $user->save();
@@ -88,7 +73,7 @@ class Informasi extends Component
     public function render()
     {
         return view('livewire.profile.informasi', [
-            'user' => Auth::user() ?? User::first()
+            'user' => Auth::user()
         ]);
     }
 }

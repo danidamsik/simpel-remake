@@ -40,7 +40,7 @@
     @foreach ($menuItems as $route => $item)
         <a href="/{{ $route }}" wire:navigate
             class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 nav-item"
-            :class="currentPath === '/{{ $route }}' ?
+            :class="currentPath === '/{{ $route }}' || currentPath.startsWith('/{{ $route }}/') ?
                 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 shadow-sm' :
                 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-gray-900 dark:hover:text-white'">
             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

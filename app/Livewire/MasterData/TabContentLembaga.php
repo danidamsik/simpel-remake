@@ -101,7 +101,7 @@ class TabContentLembaga extends Component
             // 1. Simpan logo jika ada
             $logoPath = null;
             if ($this->logo) {
-                $logoPath = $this->logo->store('profile', 'public');
+                $logoPath = $this->logo->store('logo-organisasi', 'public');
             }
 
             // 2. Buat Organization
@@ -179,8 +179,7 @@ class TabContentLembaga extends Component
         $periods = Period::orderBy('name')->get();
 
         $lembagaTypes = Organization::select('lembaga')->distinct()->orderBy('lembaga')->pluck('lembaga');
-
-        // Ambil user Bendahara yang belum ada di organization_users
+        
         $availableBendaharas = User::where('role', 'Bendahara')
             ->whereDoesntHave('organizationUser')
             ->select('id', 'username', 'email')

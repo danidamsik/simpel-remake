@@ -79,7 +79,7 @@ class TabContentUser extends Component
 
         $profilePath = null;
         if ($this->profile) {
-            $profilePath = $this->profile->store('profile', 'public');
+            $profilePath = $this->profile->store('profile-user', 'public');
         }
 
         $user = User::create([
@@ -118,7 +118,7 @@ class TabContentUser extends Component
         }
 
         if ($this->profile) {
-            $dataToUpdate['profile_path'] = $this->profile->store('profile', 'public');
+            $dataToUpdate['profile_path'] = $this->profile->store('profile-user', 'public');
         }
 
         $user->update($dataToUpdate);
