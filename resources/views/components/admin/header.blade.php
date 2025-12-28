@@ -10,8 +10,8 @@
         </button>
 
         <div class="flex-1 lg:ml-0 ml-4">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white capitalize" x-data="{ title: location.pathname.replace(/^\//, '').replace(/-/g, ' ') }"
-                x-on:livewire:navigated.window="title = location.pathname.replace(/^\//, '').replace(/-/g, ' ')"
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white capitalize" x-data="{ title: location.pathname.split('/').filter(Boolean).pop()?.replace(/-/g, ' ') || 'Dashboard' }"
+                x-on:livewire:navigated.window="title = location.pathname.split('/').filter(Boolean).pop()?.replace(/-/g, ' ') || 'Dashboard'"
                 x-text="title">
             </h1>
         </div>

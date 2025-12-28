@@ -20,7 +20,7 @@ class OrganizationFactory extends Factory
         return [
             'number_phone' => fake()->numerify('08##########'),
             'email' => fake()->unique()->companyEmail(),
-            'logo_path' => 'profile/logo.png',
+            'logo_path' => 'logo-organisasi/logo.jpg',
         ];
     }
 }

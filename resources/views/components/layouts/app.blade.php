@@ -6,41 +6,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>{{ $title ?? 'Page Title' }}</title>
-
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
         }
     </script>
-
-    <!-- Alpine.js CDN -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Dark Mode Transition -->
     <style>
         * {
             transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
     </style>
 
-    <!-- Initialize Dark Mode Before Alpine Loads -->
     <script>
-        // Check for saved theme or system preference on page load
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
+        function updateTheme() {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia(
+                    '(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
         }
+
+        // Run on initial load
+        updateTheme();
+
+        // Run on Livewire navigation
+        document.addEventListener('livewire:navigated', updateTheme);
     </script>
 </head>
 
-<body class="dark:bg-gray-900 transition-colors duration-300">
-    {{ $slot }}
+<body
+    class="bg-slate-50 dark:bg-slate-900 transition-colors duration-300 font-sans antialiased text-slate-800 dark:text-slate-100">
+    <div x-data="{ sidebarOpen: false }" class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <x-home.sidebar />
+
+        <!-- Main Content Wrapper -->
+        <div class="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+            <!-- Header -->
+            <x-home.header />
+            <main class="w-full flex-grow p-6">
+                {{ $slot }}
+            </main>
+        </div>
+    </div>
 </body>
 
 </html>
