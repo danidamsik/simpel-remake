@@ -2,7 +2,6 @@
     class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
     <div class="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
         <h3 class="text-lg font-bold text-slate-800 dark:text-white">Riwayat Transaksi</h3>
-        <button class="text-sm text-indigo-600 hover:text-indigo-700 font-medium hover:underline">Lihat Semua</button>
     </div>
     <div class="p-0">
         <div class="overflow-x-auto">

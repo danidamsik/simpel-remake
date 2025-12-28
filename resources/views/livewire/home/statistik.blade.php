@@ -35,7 +35,6 @@
         <div class="relative z-10">
             <p class="text-blue-100 font-medium text-sm">LPJ Tersetor</p>
             <h3 class="text-3xl font-bold mt-1">{{ $lpjTersetor }}</h3>
-            <p class="text-xs text-blue-200 mt-2">Dokumen Valid</p>
         </div>
     </div>
 
@@ -49,7 +48,6 @@
         <div class="relative z-10">
             <p class="text-amber-100 font-medium text-sm">Menunggu LPJ</p>
             <h3 class="text-3xl font-bold mt-1">{{ $menungguLpj }}</h3>
-            <p class="text-xs text-amber-200 mt-2">Perlu Tindakan</p>
         </div>
     </div>
 
@@ -63,7 +61,6 @@
         <div class="relative z-10">
             <p class="text-violet-100 font-medium text-sm">Total Kegiatan</p>
             <h3 class="text-3xl font-bold mt-1">{{ $totalKegiatan }}</h3>
-            <p class="text-xs text-violet-200 mt-2">Tahun Ini</p>
         </div>
     </div>
 </div>
