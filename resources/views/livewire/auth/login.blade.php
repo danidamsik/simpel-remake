@@ -3,10 +3,8 @@
     <div class="glass-effect rounded-3xl shadow-2xl p-8 md:p-10 relative z-10">
         <!-- Logo & Header -->
         <div class="text-center mb-8">
-            <div
-                class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg mb-6 transform hover:scale-105 transition-transform duration-300">
-                <i class="fas fa-university text-white text-3xl"></i>
-            </div>
+            <img src="{{ asset('storage/login-logo.png') }}" alt="Logo UIN"
+                class="mx-auto w-32 h-auto mb-6 transform hover:scale-105 transition-transform duration-300">
             <h1 class="text-3xl font-bold text-gray-800 mb-2">Selamat Datang</h1>
             <p class="text-gray-500">Masuk ke SIMPEL ORMAWA</p>
         </div>
