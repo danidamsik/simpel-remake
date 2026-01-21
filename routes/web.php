@@ -32,6 +32,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     })->name('pengajuan-kegiatan');
 
     Route::get('/pengajuan-kegiatan/tambah-kegiatan', FormtambahKegiatan::class)->name('pengajuan-kegiatan.tambah');
+    Route::get('/pengajuan-kegiatan/edit-kegiatan/{id}', FormtambahKegiatan::class)->name('pengajuan-kegiatan.edit');
 
     Route::get('/transaksi', function () {
         return view('pages.admin.transaksi');
@@ -48,6 +49,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/profile', function () {
         return view('pages.admin.my-profile');
     })->name('profile');
+
 });
 
 Route::post('/logout', function () {
