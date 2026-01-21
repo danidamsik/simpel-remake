@@ -14,16 +14,25 @@
             class="relative w-full max-w-lg transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-2xl transition-all">
 
             {{-- Header --}}
-            <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+            <div class="bg-gradient-to-r px-6 py-4"
+                :class="$wire.isEditMode ? 'from-amber-500 to-amber-600' : 'from-blue-600 to-blue-700'">
                 <div class="flex items-center justify-between">
                     <h3 class="text-lg font-semibold text-white flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                        </svg>
-                        Tambah Transaksi
+                        <template x-if="!$wire.isEditMode">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                        </template>
+                        <template x-if="$wire.isEditMode">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                        </template>
+                        <span x-text="$wire.isEditMode ? 'Edit Transaksi' : 'Tambah Transaksi'"></span>
                     </h3>
-                    <button @click="$wire.showAddModal = false"
+                    <button @click="$wire.showAddModal = false; $wire.resetForm()"
                         class="text-white/80 hover:text-white transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -39,12 +48,14 @@
                 {{-- Activity Search (Full Width) --}}
                 <div class="space-y-2">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Pilih Kegiatan <span class="text-red-500">*</span>
+                        <span x-text="$wire.isEditMode ? 'Kegiatan' : 'Pilih Kegiatan'"></span>
+                        <span class="text-red-500" x-show="!$wire.isEditMode">*</span>
                     </label>
 
                     {{-- Selected Activity Display --}}
-                    <div x-show="$wire.selectedActivity"
-                        class="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg p-3">
+                    <div x-show="$wire.selectedActivity" class="border rounded-lg p-3"
+                        :class="$wire.isEditMode ? 'bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600' :
+                            'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-700'">
                         <div class="flex items-start justify-between">
                             <div>
                                 <p class="font-medium text-gray-900 dark:text-white"
@@ -55,7 +66,8 @@
                                 <p class="text-xs text-gray-500 dark:text-gray-500 mt-1"
                                     x-text="'Periode: ' + ($wire.selectedActivity?.period?.name || '-')"></p>
                             </div>
-                            <button @click="$wire.clearSelectedActivity()" type="button"
+                            {{-- Only show clear button in add mode --}}
+                            <button x-show="!$wire.isEditMode" @click="$wire.clearSelectedActivity()" type="button"
                                 class="text-gray-400 hover:text-red-500 transition-colors">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -133,8 +145,8 @@
                         </div>
                     </div>
 
-                    {{-- Search Input --}}
-                    <div x-show="!$wire.selectedActivity" x-data="{
+                    {{-- Search Input - Only show in add mode --}}
+                    <div x-show="!$wire.selectedActivity && !$wire.isEditMode" x-data="{
                         search: '',
                         results: [],
                         loading: false,
@@ -147,8 +159,8 @@
                             this.results = await $wire.searchActivities(this.search);
                             this.loading = false;
                         }
-                    }" @click.outside="results = []"
-                        class="relative">
+                    }"
+                        @click.outside="results = []" class="relative">
                         <div class="relative">
                             <input type="text" x-model="search" @input.debounce.300ms="searchActivities()"
                                 placeholder="Cari kegiatan yang sedang berjalan..."
@@ -253,10 +265,39 @@
                     previewUrl: null,
                     isImage: false,
                     fileName: null,
+                    showExisting: false,
+                    existingUrl: null,
+                    init() {
+                        // Listen for edit mode initialization via window event
+                        window.addEventListener('set-existing-proof', (event) => {
+                            if (event.detail && event.detail.url) {
+                                this.existingUrl = event.detail.url;
+                                this.showExisting = true;
+                                this.previewUrl = null;
+                                this.fileName = null;
+                            } else {
+                                this.showExisting = false;
+                                this.existingUrl = null;
+                            }
+                        });
+                
+                        // Listen for reset when opening in create mode
+                        window.addEventListener('reset-proof-file', () => {
+                            this.previewUrl = null;
+                            this.isImage = false;
+                            this.fileName = null;
+                            this.showExisting = false;
+                            this.existingUrl = null;
+                            if (this.$refs.fileInput) {
+                                this.$refs.fileInput.value = '';
+                            }
+                        });
+                    },
                     handleFileSelect(event) {
                         const file = event.target.files[0];
                         if (file) {
                             this.fileName = file.name;
+                            this.showExisting = false;
                             const imageTypes = ['image/jpeg', 'image/jpg', 'image/png'];
                             if (imageTypes.includes(file.type)) {
                                 this.isImage = true;
@@ -271,6 +312,7 @@
                         this.previewUrl = null;
                         this.isImage = false;
                         this.fileName = null;
+                        this.showExisting = false;
                         $wire.proofFile = null;
                         this.$refs.fileInput.value = '';
                     }
@@ -286,9 +328,9 @@
                             @change="handleFileSelect($event)" accept=".jpg,.jpeg,.png,.pdf" class="sr-only"
                             id="proof-file-input" />
 
-                        {{-- Upload Box - Only show when no file selected and not loading --}}
-                        <label for="proof-file-input" x-show="!previewUrl && !fileName" wire:loading.class="hidden"
-                            wire:target="proofFile"
+                        {{-- Upload Box - Only show when no file selected, not loading, and NOT in edit mode --}}
+                        <label for="proof-file-input" x-show="!$wire.isEditMode && !previewUrl && !fileName"
+                            wire:loading.class="hidden" wire:target="proofFile"
                             class="flex flex-col items-center justify-center w-full py-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 group">
                             <svg class="w-10 h-10 mb-2 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors"
                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -319,40 +361,78 @@
                             </div>
                         </div>
 
-                        {{-- Image Preview - Filament Style --}}
-                        <div x-show="previewUrl && isImage" wire:loading.remove wire:target="proofFile" x-transition
-                            class="relative">
-                            <div
-                                class="flex items-center gap-3 w-full p-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700">
+                        {{-- Unified File Preview Component --}}
+                        <div x-show="(previewUrl && isImage) || ($wire.isEditMode && showExisting && existingUrl)"
+                            wire:loading.remove wire:target="proofFile" x-transition class="relative">
+                            <div class="flex items-center gap-3 w-full p-3 rounded-xl border"
+                                :class="(previewUrl && isImage) ?
+                                'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700' :
+                                'border-amber-200 dark:border-amber-600 bg-amber-50 dark:bg-amber-900/20'">
                                 {{-- Thumbnail --}}
-                                <div class="relative flex-shrink-0 group/thumb">
-                                    <div
-                                        class="w-16 h-16 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-800">
-                                        <img :src="previewUrl" class="w-full h-full object-cover" alt="Preview">
+                                <div class="relative flex-shrink-0">
+                                    <div class="w-16 h-16 rounded-lg overflow-hidden border bg-gray-100 dark:bg-gray-800"
+                                        :class="(previewUrl && isImage) ?
+                                        'border-gray-200 dark:border-gray-600' :
+                                        'border-amber-200 dark:border-amber-600'">
+                                        <img :src="(previewUrl && isImage) ? previewUrl: existingUrl"
+                                            class="w-full h-full object-cover" alt="Preview">
                                     </div>
                                 </div>
                                 {{-- File Info --}}
                                 <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate"
-                                        x-text="fileName"></p>
-                                    <p
-                                        class="text-xs text-green-600 dark:text-green-400 flex items-center gap-1 mt-0.5">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                    {{-- New file info --}}
+                                    <template x-if="previewUrl && isImage">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900 dark:text-white truncate"
+                                                x-text="fileName"></p>
+                                            <p
+                                                class="text-xs text-green-600 dark:text-green-400 flex items-center gap-1 mt-0.5">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M5 13l4 4L19 7" />
+                                                </svg>
+                                                Siap diupload
+                                            </p>
+                                        </div>
+                                    </template>
+                                    {{-- Existing file info --}}
+                                    <template
+                                        x-if="!(previewUrl && isImage) && $wire.isEditMode && showExisting && existingUrl">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900 dark:text-white">Bukti
+                                                Transaksi Saat Ini</p>
+                                            <p
+                                                class="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1 mt-0.5">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                Klik untuk mengganti
+                                            </p>
+                                        </div>
+                                    </template>
+                                </div>
+                                {{-- Action Button --}}
+                                <template x-if="previewUrl && isImage">
+                                    <button type="button" @click="clearFile()"
+                                        class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors flex-shrink-0">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M5 13l4 4L19 7" />
+                                                d="M6 18L18 6M6 6l12 12" />
                                         </svg>
-                                        Siap diupload
-                                    </p>
-                                </div>
-                                {{-- Remove Button --}}
-                                <button type="button" @click="clearFile()"
-                                    class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors flex-shrink-0">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
+                                    </button>
+                                </template>
+                                <template
+                                    x-if="!(previewUrl && isImage) && $wire.isEditMode && showExisting && existingUrl">
+                                    <label for="proof-file-input"
+                                        class="px-3 py-1.5 text-xs font-medium text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-800/50 hover:bg-amber-200 dark:hover:bg-amber-800 rounded-lg transition-colors cursor-pointer flex-shrink-0">
+                                        Ganti
+                                    </label>
+                                </template>
                             </div>
                         </div>
                     </div>
@@ -403,11 +483,14 @@
 
             {{-- Footer --}}
             <div class="bg-gray-50 dark:bg-gray-700/50 px-6 py-4 flex justify-end gap-3">
-                <button type="button" @click="$wire.showAddModal = false"
+                <button type="button" @click="$wire.showAddModal = false; $wire.resetForm()"
                     class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                     Batal
                 </button>
-                <button type="button" wire:click="saveExpense" wire:loading.attr="disabled"
+
+                {{-- Add Mode Button --}}
+                <button x-show="!$wire.isEditMode" type="button" wire:click="saveExpense"
+                    wire:loading.attr="disabled"
                     class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
                     <svg wire:loading wire:target="saveExpense" class="animate-spin h-4 w-4" fill="none"
                         viewBox="0 0 24 24">
@@ -419,6 +502,22 @@
                     </svg>
                     <span wire:loading.remove wire:target="saveExpense">Simpan Transaksi</span>
                     <span wire:loading wire:target="saveExpense">Menyimpan...</span>
+                </button>
+
+                {{-- Edit Mode Button --}}
+                <button x-show="$wire.isEditMode" type="button" wire:click="updateExpense"
+                    wire:loading.attr="disabled"
+                    class="px-4 py-2 text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                    <svg wire:loading wire:target="updateExpense" class="animate-spin h-4 w-4" fill="none"
+                        viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                            stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                        </path>
+                    </svg>
+                    <span wire:loading.remove wire:target="updateExpense">Perbarui Transaksi</span>
+                    <span wire:loading wire:target="updateExpense">Memperbarui...</span>
                 </button>
             </div>
         </div>

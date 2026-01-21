@@ -27,6 +27,8 @@ class FilterTable extends Component
     public $search = '';
 
     public $showAddModal = false;
+    public $showDeleteModal = false;
+    public $deleteExpenseId = null;
     public $selectedActivity = null;
     public $selectedWallet = null;
     
@@ -62,6 +64,11 @@ class FilterTable extends Component
     public $taxType = 'PPh22';
     public $taxPersentase = 0;
     public $proofFile = null;
+    
+    // Edit mode properties
+    public $isEditMode = false;
+    public $editExpenseId = null;
+    public $existingProofFile = null;
 
     protected $rules = [
         'selectedActivity' => 'required',
@@ -162,8 +169,177 @@ class FilterTable extends Component
 
         $wallet->decrement('balance', $expenseAmount);
         $this->showAddModal = false;
+        $this->resetForm();
         
         $this->dispatch('notify', message: 'Transaksi berhasil ditambahkan', type: 'success');
+    }
+
+    #[Renderless]
+    public function getExpenseForEdit($id)
+    {
+        $expense = Expense::with(['activity.organization', 'activity.period'])->find($id);
+        
+        if (!$expense) {
+            return [
+                'error' => true,
+                'message' => 'Transaksi tidak ditemukan.'
+            ];
+        }
+
+        // Load wallet info
+        $wallet = Wallet::join('organization_users', 'organization_users.wallet_id', '=', 'wallets.id')
+            ->where('organization_users.organization_id', $expense->organization_id)
+            ->where('wallets.period_id', $expense->activity->period_id)
+            ->select('wallets.*')
+            ->first();
+
+        return [
+            'error' => false,
+            'id' => $expense->id,
+            'activity' => [
+                'id' => $expense->activity->id,
+                'name' => $expense->activity->name,
+                'organization' => [
+                    'id' => $expense->activity->organization->id,
+                    'name' => $expense->activity->organization->name,
+                    'lembaga' => $expense->activity->organization->lembaga,
+                ],
+                'period' => [
+                    'id' => $expense->activity->period->id,
+                    'name' => $expense->activity->period->name,
+                ],
+            ],
+            'wallet' => $wallet ? $wallet->toArray() : null,
+            'amount' => (string) $expense->amount,
+            'description' => $expense->description ?? '',
+            'expenseDate' => $expense->expense_date->format('Y-m-d'),
+            'taxType' => $expense->tax_type,
+            'taxPersentase' => self::TAX_RATES[$expense->tax_type] ?? 0,
+            'existingProofFile' => $expense->proof_file,
+            'existingProofFileUrl' => $expense->proof_file ? asset('storage/' . $expense->proof_file) : null,
+        ];
+    }
+
+    public function updateExpense()
+    {
+        $this->validate([
+            'amount' => 'required|numeric|min:1',
+            'expenseDate' => 'required|date',
+            'taxType' => 'required|in:PPh22,PPh23,Ppn',
+            'proofFile' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+        ]);
+
+        $expense = Expense::find($this->editExpenseId);
+
+        if (!$expense) {
+            $this->dispatch('notify', message: 'Transaksi tidak ditemukan.', type: 'error');
+            return;
+        }
+
+        $wallet = Wallet::join('organization_users', 'organization_users.wallet_id', '=', 'wallets.id')
+            ->where('organization_users.organization_id', $expense->organization_id)
+            ->where('wallets.period_id', $expense->activity->period_id)
+            ->select('wallets.*')
+            ->first();
+
+        $oldAmount = (float) $expense->amount;
+        $newAmount = (float) $this->amount;
+        $amountDifference = $newAmount - $oldAmount;
+
+        // Check if new amount exceeds available balance
+        if ($wallet && $amountDifference > 0 && $wallet->balance < $amountDifference) {
+            $this->dispatch('notify', message: 'Saldo tidak mencukupi. Saldo tersedia: Rp ' . number_format($wallet->balance, 0, ',', '.'), type: 'error');
+            return;
+        }
+
+        // Handle proof file
+        $proofFilePath = $expense->proof_file;
+        if ($this->proofFile) {
+            // Delete old file if exists
+            if ($expense->proof_file && \Storage::disk('public')->exists($expense->proof_file)) {
+                \Storage::disk('public')->delete($expense->proof_file);
+            }
+            $proofFilePath = $this->proofFile->store('expenses', 'public');
+        }
+
+        // Update expense
+        $expense->update([
+            'amount' => $newAmount,
+            'description' => $this->description,
+            'expense_date' => $this->expenseDate,
+            'tax_type' => $this->taxType,
+            'tax_persentase' => self::TAX_RATES[$this->taxType] ?? 0,
+            'proof_file' => $proofFilePath,
+        ]);
+
+        // Adjust wallet balance
+        if ($wallet && $amountDifference != 0) {
+            if ($amountDifference > 0) {
+                $wallet->decrement('balance', $amountDifference);
+            } else {
+                $wallet->increment('balance', abs($amountDifference));
+            }
+        }
+
+        $this->showAddModal = false;
+        $this->resetForm();
+
+        $this->dispatch('notify', message: 'Transaksi berhasil diperbarui', type: 'success');
+    }
+
+    public function resetForm()
+    {
+        $this->isEditMode = false;
+        $this->editExpenseId = null;
+        $this->selectedActivity = null;
+        $this->selectedWallet = null;
+        $this->amount = '';
+        $this->description = '';
+        $this->expenseDate = '';
+        $this->taxType = 'PPh22';
+        $this->taxPersentase = 0;
+        $this->proofFile = null;
+        $this->existingProofFile = null;
+    }
+
+    public function deleteExpense()
+    {
+        if (!$this->deleteExpenseId) {
+            $this->dispatch('notify', message: 'ID transaksi tidak valid.', type: 'error');
+            return;
+        }
+
+        $expense = Expense::find($this->deleteExpenseId);
+
+        if (!$expense) {
+            $this->dispatch('notify', message: 'Transaksi tidak ditemukan.', type: 'error');
+            $this->showDeleteModal = false;
+            $this->deleteExpenseId = null;
+            return;
+        }
+
+        // Find and restore wallet balance
+        $wallet = Wallet::join('organization_users', 'organization_users.wallet_id', '=', 'wallets.id')
+            ->where('organization_users.organization_id', $expense->organization_id)
+            ->where('wallets.period_id', $expense->activity->period_id)
+            ->select('wallets.*')
+            ->first();
+
+        if ($wallet) {
+            $wallet->increment('balance', $expense->amount);
+        }
+
+        // Delete proof file if exists
+        if ($expense->proof_file && \Storage::disk('public')->exists($expense->proof_file)) {
+            \Storage::disk('public')->delete($expense->proof_file);
+        }
+
+        $expense->delete();
+
+        $this->showDeleteModal = false;
+        $this->deleteExpenseId = null;
+
+        $this->dispatch('notify', message: 'Transaksi berhasil dihapus', type: 'success');
     }
 
     #[Renderless]
