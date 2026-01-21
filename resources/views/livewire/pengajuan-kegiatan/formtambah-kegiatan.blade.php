@@ -9,7 +9,9 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
             </a>
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Tambah Pengajuan Kegiatan</h2>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                {{ $isEditMode ? 'Edit Pengajuan Kegiatan' : 'Tambah Pengajuan Kegiatan' }}
+            </h2>
         </div>
         <p class="text-sm text-gray-600 dark:text-gray-400 ml-8">
             Periode Aktif: <span class="font-medium">{{ $activePeriod?->name ?? 'Tidak ada periode aktif' }}</span>
@@ -25,55 +27,127 @@
     @enderror
 
     <form wire:submit="save" class="space-y-6">
-        {{-- Section 1: Organization Search --}}
+        {{-- Section 1: Organization --}}
         <div>
-            <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">1. Pilih Organisasi</h3>
+            <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                1. {{ $isEditMode ? 'Informasi Organisasi' : 'Pilih Organisasi' }}
+            </h3>
 
-            <div class="relative">
-                <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Cari Nama Organisasi</label>
+            @if ($isEditMode && $organizationInfo)
+                {{-- Edit Mode: Show Organization Info (Readonly) --}}
+                <div
+                    class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800/50 rounded-xl overflow-hidden">
+                    {{-- Header --}}
+                    <div
+                        class="px-4 py-3 bg-blue-100/50 dark:bg-blue-900/30 border-b border-blue-200 dark:border-blue-800/50">
+                        <div class="flex items-center gap-2">
+                            <div class="p-1.5 bg-blue-500 dark:bg-blue-600 rounded-lg">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                </svg>
+                            </div>
+                            <h4 class="text-sm font-semibold text-blue-900 dark:text-blue-100">Informasi Organisasi</h4>
+                        </div>
+                    </div>
+
+                    {{-- Content --}}
+                    <div class="p-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {{-- Organization Name --}}
+                            <div class="flex items-start gap-3">
+                                @if ($organizationInfo->logo_path)
+                                    <img src="{{ asset('storage/' . $organizationInfo->logo_path) }}"
+                                        alt="{{ $organizationInfo->name }}"
+                                        class="w-12 h-12 rounded-lg object-cover border border-blue-200 dark:border-blue-700">
+                                @else
+                                    <div
+                                        class="w-12 h-12 rounded-lg bg-blue-200 dark:bg-blue-800 flex items-center justify-center">
+                                        <span class="text-lg font-bold text-blue-600 dark:text-blue-300">
+                                            {{ substr($organizationInfo->name, 0, 2) }}
+                                        </span>
+                                    </div>
+                                @endif
+                                <div class="min-w-0">
+                                    <p
+                                        class="text-[10px] uppercase tracking-wider font-semibold text-blue-600 dark:text-blue-500">
+                                        Nama Organisasi</p>
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                        {{ $organizationInfo->name }}</p>
+                                </div>
+                            </div>
+
+                            {{-- Lembaga --}}
+                            <div class="flex items-start gap-3">
+                                <div
+                                    class="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-blue-100 dark:border-blue-800/50">
+                                    <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+                                    </svg>
+                                </div>
+                                <div class="min-w-0">
+                                    <p
+                                        class="text-[10px] uppercase tracking-wider font-semibold text-blue-600 dark:text-blue-500">
+                                        Lembaga</p>
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                        {{ $organizationInfo->lembaga }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @else
+                {{-- Create Mode: Organization Search --}}
                 <div class="relative">
-                    <input type="text" x-model="searchQuery" @input.debounce.300ms="search()"
-                        @focus="showDropdown = true" @click.away="showDropdown = false" wire:model="searchOrganization"
-                        placeholder="Ketik nama organisasi..."
-                        class="w-full px-3 py-2 pl-9 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
-                    <svg class="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                    <div x-show="loading" class="absolute right-2.5 top-2.5">
-                        <svg class="animate-spin h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                            </path>
+                    <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Cari Nama Organisasi</label>
+                    <div class="relative">
+                        <input type="text" x-model="searchQuery" @input.debounce.300ms="search()"
+                            @focus="showDropdown = true" @click.away="showDropdown = false"
+                            wire:model="searchOrganization" placeholder="Ketik nama organisasi..."
+                            class="w-full px-3 py-2 pl-9 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                        <svg class="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
+                        <div x-show="loading" class="absolute right-2.5 top-2.5">
+                            <svg class="animate-spin h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+
+                    {{-- Dropdown Results --}}
+                    <div x-show="showDropdown && results.length > 0" x-cloak
+                        class="absolute z-50 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded shadow-lg max-h-48 overflow-y-auto">
+                        <template x-for="org in results" :key="org.id">
+                            <button type="button" @click="selectOrg(org)"
+                                class="w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 border-b border-gray-200 dark:border-gray-600 last:border-b-0">
+                                <div class="text-sm font-medium text-gray-900 dark:text-gray-200" x-text="org.name">
+                                </div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400" x-text="org.lembaga"></div>
+                            </button>
+                        </template>
+                    </div>
+
+                    {{-- No results --}}
+                    <div x-show="showDropdown && searchQuery.length >= 2 && results.length === 0 && !loading" x-cloak
+                        class="absolute z-50 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded shadow-lg p-3 text-center text-sm text-gray-500 dark:text-gray-400">
+                        Tidak ada organisasi ditemukan
                     </div>
                 </div>
 
-                {{-- Dropdown Results --}}
-                <div x-show="showDropdown && results.length > 0" x-cloak
-                    class="absolute z-50 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded shadow-lg max-h-48 overflow-y-auto">
-                    <template x-for="org in results" :key="org.id">
-                        <button type="button" @click="selectOrg(org)"
-                            class="w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 border-b border-gray-200 dark:border-gray-600 last:border-b-0">
-                            <div class="text-sm font-medium text-gray-900 dark:text-gray-200" x-text="org.name"></div>
-                            <div class="text-xs text-gray-500 dark:text-gray-400" x-text="org.lembaga"></div>
-                        </button>
-                    </template>
-                </div>
-
-                {{-- No results --}}
-                <div x-show="showDropdown && searchQuery.length >= 2 && results.length === 0 && !loading" x-cloak
-                    class="absolute z-50 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded shadow-lg p-3 text-center text-sm text-gray-500 dark:text-gray-400">
-                    Tidak ada organisasi ditemukan
-                </div>
-            </div>
-
-            @error('searchOrganization')
-                <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
-            @enderror
+                @error('searchOrganization')
+                    <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                @enderror
+            @endif
 
             {{-- Wallet Info --}}
             @if ($walletInfo)
@@ -187,8 +261,41 @@
             <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">2. Data Proposal</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">File Proposal <span
-                            class="text-red-500">*</span></label>
+                    <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">
+                        File Proposal
+                        @if (!$isEditMode)
+                            <span class="text-red-500">*</span>
+                        @endif
+                    </label>
+
+                    {{-- Existing File (Edit Mode) --}}
+                    @if ($isEditMode && $existingProposalFile && !$proposalFile)
+                        <div
+                            class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 mb-2">
+                            <div class="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
+                                <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                    {{ basename($existingProposalFile) }}
+                                </p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">File saat ini</p>
+                            </div>
+                            <a href="{{ asset('storage/' . $existingProposalFile) }}" target="_blank"
+                                class="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                            </a>
+                        </div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Upload file baru untuk mengganti:</p>
+                    @endif
+
                     <input type="file" wire:model="proposalFile" accept=".pdf,.doc,.docx"
                         class="w-full text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:bg-blue-50 file:text-blue-700 dark:file:bg-blue-900/40 dark:file:text-blue-300">
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Format: PDF, DOC, DOCX (Max 10MB)</p>
@@ -318,6 +425,42 @@
                 <div>
                     <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Bukti Pengeluaran</label>
 
+                    {{-- Existing Proof File (Edit Mode) --}}
+                    @if ($isEditMode && $existingProofFile && !$proofFile)
+                        <div
+                            class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 mb-2">
+                            <div
+                                class="w-12 h-12 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-800">
+                                @if (in_array(pathinfo($existingProofFile, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png']))
+                                    <img src="{{ asset('storage/' . $existingProofFile) }}"
+                                        class="w-full h-full object-cover" alt="Bukti">
+                                @else
+                                    <div class="w-full h-full flex items-center justify-center">
+                                        <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                    {{ basename($existingProofFile) }}
+                                </p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">File saat ini</p>
+                            </div>
+                            <a href="{{ asset('storage/' . $existingProofFile) }}" target="_blank"
+                                class="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                            </a>
+                        </div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Upload file baru untuk mengganti:</p>
+                    @endif
+
                     {{-- Hidden File Input --}}
                     <input type="file" wire:model="proofFile" accept=".jpg,.jpeg,.png" class="sr-only"
                         id="proof-file-kegiatan">
@@ -354,7 +497,7 @@
                         </div>
                     </div>
 
-                    {{-- Image Preview - Filament Style --}}
+                    {{-- Image Preview - New Upload --}}
                     @if ($proofFile)
                         <div wire:loading.remove wire:target="proofFile">
                             <div
@@ -458,8 +601,9 @@
                         </path>
                     </svg>
                 </span>
-                <span wire:loading.remove wire:target="save">Simpan Pengajuan</span>
-                <span wire:loading wire:target="save">Menyimpan...</span>
+                <span wire:loading.remove
+                    wire:target="save">{{ $isEditMode ? 'Update Pengajuan' : 'Simpan Pengajuan' }}</span>
+                <span wire:loading wire:target="save">{{ $isEditMode ? 'Mengupdate...' : 'Menyimpan...' }}</span>
             </button>
         </div>
     </form>

@@ -17,6 +17,8 @@ class FilterTableProposal extends Component
 
     public $lembagaFilter, $periodId, $lpjStatus, $search, $lembagas, $periods;
     public $lpjFile;
+    public $showDeleteModal = false;
+    public $deleteActivityId = null;
 
     public function mount()
     {
@@ -91,6 +93,23 @@ class FilterTableProposal extends Component
 
         $this->dispatch('notify', message: 'LPJ berhasil diupload!', type: 'success');
         $this->dispatch('lpj-uploaded', activityId: $activityId);
+    }
+
+    public function deleteActivity()
+    {
+        if ($this->deleteActivityId) {
+            $activity = Activity::find($this->deleteActivityId);
+            
+            if ($activity) {
+                $activity->delete();
+                $this->dispatch('notify', message: 'Kegiatan berhasil dihapus!', type: 'success');
+            } else {
+                $this->dispatch('notify', message: 'Kegiatan tidak ditemukan.', type: 'error');
+            }
+        }
+        
+        $this->showDeleteModal = false;
+        $this->deleteActivityId = null;
     }
 
 

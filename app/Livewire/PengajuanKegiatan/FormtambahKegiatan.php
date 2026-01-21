@@ -10,6 +10,7 @@ use App\Models\Period;
 use App\Models\Proposal;
 use App\Models\Wallet;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\Attributes\Renderless;
@@ -17,6 +18,15 @@ use Livewire\Attributes\Renderless;
 class FormtambahKegiatan extends Component
 {
     use WithFileUploads;
+
+    // Edit Mode
+    public $activityId = null;
+    public $isEditMode = false;
+    public $organizationInfo = null;
+    public $existingProposalFile = null;
+    public $existingProofFile = null;
+    public $oldFundsApproved = 0;
+    public $expenseId = null;
 
     // Organization
     public $searchOrganization, $selectedOrganizationId = null, $walletInfo = null;
@@ -35,8 +45,7 @@ class FormtambahKegiatan extends Component
 
     protected function rules()
     {
-        return [
-            'proposalFile' => 'required|file|mimes:pdf,doc,docx|max:10240',
+        $rules = [
             'fundsApproved' => 'required|numeric|min:1',
             'dateReceived' => 'required|date',
 
@@ -51,6 +60,15 @@ class FormtambahKegiatan extends Component
             'proofFile' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'taxType' => 'required|in:PPh22,PPh23,Ppn',
         ];
+
+        // Proposal file required hanya untuk mode tambah
+        if (!$this->isEditMode) {
+            $rules['proposalFile'] = 'required|file|mimes:pdf,doc,docx|max:10240';
+        } else {
+            $rules['proposalFile'] = 'nullable|file|mimes:pdf,doc,docx|max:10240';
+        }
+
+        return $rules;
     }
 
     protected function messages()
@@ -100,10 +118,64 @@ class FormtambahKegiatan extends Component
         ];
     }
 
-    public function mount()
+    public function mount($id = null)
     {
         $this->activePeriod = Period::where('status', true)->first();
         $this->dateReceived = now()->format('Y-m-d');
+
+        if ($id) {
+            $this->loadActivityForEdit($id);
+        }
+    }
+
+    protected function loadActivityForEdit($id)
+    {
+        $activity = Activity::with(['organization', 'proposal', 'expenses'])->find($id);
+
+        if (!$activity) {
+            session()->flash('error', 'Kegiatan tidak ditemukan.');
+            return $this->redirect('/pengajuan-kegiatan', navigate: true);
+        }
+
+        $this->isEditMode = true;
+        $this->activityId = $activity->id;
+
+        // Organization Info (readonly)
+        $this->selectedOrganizationId = $activity->organization_id;
+        $this->organizationInfo = $activity->organization;
+        $this->searchOrganization = $activity->organization->name;
+
+        // Load wallet info
+        if ($this->activePeriod) {
+            $this->walletInfo = Wallet::join('organization_users', 'organization_users.wallet_id', '=', 'wallets.id')
+                ->where('organization_users.organization_id', $activity->organization_id)
+                ->where('wallets.period_id', $this->activePeriod->id)
+                ->select('wallets.*')
+                ->first();
+        }
+
+        // Proposal data
+        $this->existingProposalFile = $activity->proposal->proposal_file;
+        $this->fundsApproved = $activity->proposal->funds_approved;
+        $this->oldFundsApproved = $activity->proposal->funds_approved;
+        $this->dateReceived = $activity->proposal->date_received->format('Y-m-d');
+
+        // Activity data
+        $this->activityName = $activity->name;
+        $this->startDate = $activity->start_date->format('Y-m-d');
+        $this->endDate = $activity->end_date->format('Y-m-d');
+        $this->location = $activity->location;
+        $this->description = $activity->description;
+        $this->personResponsible = $activity->person_responsible;
+        $this->numberPr = $activity->number_pr;
+
+        // Expense data (ambil expense pertama)
+        $expense = $activity->expenses->first();
+        if ($expense) {
+            $this->expenseId = $expense->id;
+            $this->existingProofFile = $expense->proof_file;
+            $this->taxType = $expense->tax_type;
+        }
     }
 
     #[Renderless]
@@ -146,8 +218,26 @@ class FormtambahKegiatan extends Component
         };
     }
 
+    public function getAvailableBalance()
+    {
+        if (!$this->walletInfo) {
+            return 0;
+        }
+
+        // Pada mode edit, saldo tersedia = saldo saat ini + dana yang sudah disetujui sebelumnya
+        if ($this->isEditMode) {
+            return $this->walletInfo->balance + $this->oldFundsApproved;
+        }
+
+        return $this->walletInfo->balance;
+    }
+
     public function save()
     {
+        if ($this->isEditMode) {
+            return $this->update();
+        }
+
         $this->validate();
 
         if (!$this->selectedOrganizationId) {
@@ -224,6 +314,92 @@ class FormtambahKegiatan extends Component
             DB::commit();
 
             session()->flash('success', 'Pengajuan kegiatan berhasil disimpan!');
+            return $this->redirect('/pengajuan-kegiatan', navigate: true);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $this->addError('general', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    public function update()
+    {
+        $this->validate();
+
+        if (!$this->walletInfo) {
+            $this->addError('fundsApproved', 'Organisasi belum memiliki wallet untuk periode ini.');
+            return;
+        }
+
+        // Validasi terhadap saldo saat ini
+        if ($this->fundsApproved > $this->walletInfo->balance) {
+            $this->addError('fundsApproved', 'Dana yang diajukan melebihi saldo tersedia (Rp ' . number_format($this->walletInfo->balance, 0, ',', '.') . ').');
+            return;
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $activity = Activity::with(['proposal', 'expenses'])->find($this->activityId);
+
+            // Update Proposal
+            $proposalPath = $this->existingProposalFile;
+            if ($this->proposalFile) {
+                // Hapus file lama
+                if ($this->existingProposalFile && Storage::disk('public')->exists($this->existingProposalFile)) {
+                    Storage::disk('public')->delete($this->existingProposalFile);
+                }
+                $proposalPath = $this->proposalFile->store('proposals', 'public');
+            }
+
+            $activity->proposal->update([
+                'proposal_file' => $proposalPath,
+                'funds_approved' => $this->fundsApproved,
+                'date_received' => $this->dateReceived,
+            ]);
+
+            // Update Activity
+            $activity->update([
+                'name' => $this->activityName,
+                'start_date' => $this->startDate,
+                'end_date' => $this->endDate,
+                'location' => $this->location,
+                'description' => $this->description,
+                'person_responsible' => $this->personResponsible,
+                'number_pr' => $this->numberPr,
+            ]);
+
+            // Update Wallet Balance
+            // Formula: saldo_baru = saldo_saat_ini + dana_lama - dana_baru
+            $balanceDifference = $this->oldFundsApproved - $this->fundsApproved;
+            $this->walletInfo->increment('balance', $balanceDifference);
+
+            // Update Expense
+            if ($this->expenseId) {
+                $expense = Expense::find($this->expenseId);
+
+                $proofPath = $this->existingProofFile;
+                if ($this->proofFile) {
+                    // Hapus file lama
+                    if ($this->existingProofFile && Storage::disk('public')->exists($this->existingProofFile)) {
+                        Storage::disk('public')->delete($this->existingProofFile);
+                    }
+                    $proofPath = $this->proofFile->store('expenses', 'public');
+                }
+
+                $expense->update([
+                    'amount' => $this->fundsApproved,
+                    'description' => $this->activityName,
+                    'expense_date' => $this->dateReceived,
+                    'tax_persentase' => $this->getTaxPercentage(),
+                    'tax_type' => $this->taxType,
+                    'proof_file' => $proofPath,
+                ]);
+            }
+
+            DB::commit();
+
+            session()->flash('success', 'Pengajuan kegiatan berhasil diperbarui!');
             return $this->redirect('/pengajuan-kegiatan', navigate: true);
 
         } catch (\Exception $e) {
