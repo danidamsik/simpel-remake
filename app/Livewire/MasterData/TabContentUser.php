@@ -36,6 +36,10 @@ class TabContentUser extends Component
     public $createdPassword;
     public $whatsappNumber;
 
+    // Delete Modal Properties
+    public $showDeleteModal = false;
+    public $deletingUserId = null;
+
     protected function rules()
     {
         $rules = [
@@ -145,6 +149,29 @@ class TabContentUser extends Component
     {
         $this->reset(['username', 'email', 'password', 'password_confirmation', 'profile', 'selectedUserId', 'isEditMode', 'existingProfile']);
         $this->resetErrorBag();
+    }
+
+    public function confirmDelete($id)
+    {
+        $this->deletingUserId = $id;
+        $this->showDeleteModal = true;
+    }
+
+    public function delete()
+    {
+        if (!$this->deletingUserId) {
+            return;
+        }
+
+        $user = User::find($this->deletingUserId);
+
+        if ($user) {
+            $user->delete();
+            $this->dispatch('notify', message: 'Bendahara berhasil dihapus!', type: 'success');
+        }
+
+        $this->showDeleteModal = false;
+        $this->deletingUserId = null;
     }
 
     public function render()

@@ -6,7 +6,7 @@
             class="px-6 py-5 border-b border-gray-200 dark:border-gray-700 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div>
                 <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">
-                    Ringkasan Saldo Lembaga
+                    Ringkasan Saldo Organisasi
                 </h2>
                 <p class="text-sm text-gray-600 dark:text-gray-400">
                     Rekapitulasi dana masuk, terpakai, dan sisa saldo
@@ -17,7 +17,7 @@
             <div class="flex flex-col sm:flex-row gap-3">
                 <!-- Search -->
                 <div class="relative">
-                    <input type="text" wire:model.live.debounce.300ms="search" placeholder="Cari lembaga..."
+                    <input type="text" wire:model.live.debounce.300ms="search" placeholder="Cari Organisasi..."
                         class="w-full sm:w-64 px-4 py-2 pl-10 text-sm border border-gray-300 dark:border-gray-600 rounded-lg 
                                bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 outline-none
                                focus:ring-2 focus:ring-blue-500 focus:border-transparent
@@ -43,8 +43,8 @@
             <table class="w-full text-sm">
                 <thead class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
                     <tr>
-                        <th class="px-6 py-4 text-left font-semibold">Lembaga</th>
-                        <th class="px-6 py-4 text-left font-semibold">Total Dana</th>
+                        <th class="px-6 py-4 text-left font-semibold">Nama Organisasi</th>
+                        <th class="px-6 py-4 text-left font-semibold">Total Saldo</th>
                         <th class="px-6 py-4 text-left font-semibold">Terpakai</th>
                         <th class="px-6 py-4 text-left font-semibold">Sisa Saldo</th>
                         <th class="px-6 py-4 text-center font-semibold">Aksi</th>
@@ -96,7 +96,7 @@
                                            bg-blue-600 hover:bg-blue-700 text-white
                                            transition shadow-sm">
                                     <i class="fas fa-eye text-xs"></i>
-                                    Detail
+                                    Kegiatan
                                 </button>
                             </td>
                         </tr>
