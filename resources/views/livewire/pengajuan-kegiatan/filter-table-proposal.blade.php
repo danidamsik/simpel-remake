@@ -15,11 +15,11 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <!-- Filter: Nama Lembaga -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nama Lembaga</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fakultas</label>
                 <div class="relative">
                     <select wire:model.live="lembagaFilter"
                         class="w-full px-4 py-3 pr-10 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none appearance-none bg-white">
-                        <option value="">Semua Lembaga</option>
+                        <option value="">Semua Fakultas</option>
                         @foreach ($lembagas as $lembaga)
                             <option value="{{ $lembaga }}">{{ $lembaga }}</option>
                         @endforeach
@@ -91,7 +91,7 @@
                     <tr>
                         <th
                             class="py-3 px-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                            Nama Lembaga</th>
+                            Nama Organisasi</th>
                         <th
                             class="py-3 px-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                             Nama Kegiatan</th>

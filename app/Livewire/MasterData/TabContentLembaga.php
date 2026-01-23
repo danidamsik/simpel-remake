@@ -39,6 +39,17 @@ class TabContentLembaga extends Component
     public $account_number;
     public $balance = 0;
 
+    // Edit Mode Properties
+    public $editMode = false;
+    public $editingOrganizationId = null;
+    public $existingOrganizationUserId = null;
+    public $existingWalletId = null;
+    public $existingLogoPath = null;
+
+    // Delete Modal Properties
+    public $showDeleteModal = false;
+    public $deletingOrganizationId = null;
+
     // Lembaga Types (enum values)
     public $lembagaOptions = [
         'Fakultas Sains & Teknologi',
@@ -50,6 +61,11 @@ class TabContentLembaga extends Component
 
     protected function rules()
     {
+        $accountNumberRule = 'required|string|max:50|unique:wallets,account_number';
+        if ($this->editMode && $this->existingWalletId) {
+            $accountNumberRule = 'required|string|max:50|unique:wallets,account_number,' . $this->existingWalletId;
+        }
+
         return [
             'name' => 'required|string|max:255',
             'lembaga' => 'required|in:' . implode(',', $this->lembagaOptions),
@@ -59,18 +75,18 @@ class TabContentLembaga extends Component
             'selectedUserId' => 'required|exists:users,id',
             'bank_name' => 'nullable|string|max:255',
             'account_name' => 'required|string|max:255',
-            'account_number' => 'required|string|max:50|unique:wallets,account_number',
+            'account_number' => $accountNumberRule,
             'balance' => 'required|numeric|min:0',
         ];
     }
 
     protected $messages = [
-        'name.required' => 'Nama lembaga wajib diisi.',
-        'lembaga.required' => 'Pilih fakultas/lembaga.',
+        'name.required' => 'Nama Organisasi wajib diisi.',
+        'lembaga.required' => 'Pilih Fakultas.',
         'number_phone.required' => 'Nomor telepon wajib diisi.',
         'email.required' => 'Email wajib diisi.',
         'email.email' => 'Format email tidak valid.',
-        'selectedUserId.required' => 'Pilih bendahara.',
+        'selectedUserId.required' => 'Pilih Bendahara.',
         'account_name.required' => 'Nama akun rekening wajib diisi.',
         'account_number.required' => 'Nomor rekening wajib diisi.',
         'account_number.unique' => 'Nomor rekening sudah terdaftar.',
@@ -145,10 +161,139 @@ class TabContentLembaga extends Component
     {
         $this->reset([
             'name', 'lembaga', 'number_phone', 'email', 'logo',
-            'selectedUserId', 'bank_name', 'account_name', 'account_number', 'balance'
+            'selectedUserId', 'bank_name', 'account_name', 'account_number', 'balance',
+            'editMode', 'editingOrganizationId', 'existingOrganizationUserId', 'existingWalletId', 'existingLogoPath'
         ]);
         $this->balance = 0;
         $this->resetErrorBag();
+    }
+
+    public function edit($id)
+    {
+        $this->resetForm();
+        $this->editMode = true;
+        $this->editingOrganizationId = $id;
+
+        $organization = Organization::with(['organizationUsers.user', 'organizationUsers.wallet'])->find($id);
+
+        if (!$organization) {
+            $this->dispatch('notify', message: 'Lembaga tidak ditemukan!', type: 'error');
+            return;
+        }
+
+        // Load organization data
+        $this->name = $organization->name;
+        $this->lembaga = $organization->lembaga;
+        $this->number_phone = $organization->number_phone;
+        $this->email = $organization->email;
+        $this->existingLogoPath = $organization->logo_path;
+
+        // Load organization_user and wallet data if exists
+        $organizationUser = $organization->organizationUsers->first();
+        if ($organizationUser) {
+            $this->existingOrganizationUserId = $organizationUser->id;
+            $this->selectedUserId = $organizationUser->user_id;
+
+            if ($organizationUser->wallet) {
+                $this->existingWalletId = $organizationUser->wallet->id;
+                $this->bank_name = $organizationUser->wallet->bank_name;
+                $this->account_name = $organizationUser->wallet->account_name;
+                $this->account_number = $organizationUser->wallet->account_number;
+                $this->balance = $organizationUser->wallet->balance;
+            }
+        }
+
+        $this->showModal = true;
+    }
+
+    public function update()
+    {
+        $this->validate();
+
+        DB::transaction(function () {
+            $organization = Organization::find($this->editingOrganizationId);
+
+            // 1. Update logo jika ada upload baru
+            $logoPath = $this->existingLogoPath;
+            if ($this->logo) {
+                $logoPath = $this->logo->store('logo-organisasi', 'public');
+            }
+
+            // 2. Update Organization
+            $organization->update([
+                'name' => $this->name,
+                'lembaga' => $this->lembaga,
+                'number_phone' => $this->number_phone,
+                'email' => $this->email,
+                'logo_path' => $logoPath,
+            ]);
+
+            // 3. Ambil periode aktif
+            $activePeriod = Period::where('status', true)->first();
+            if (!$activePeriod) {
+                $activePeriod = Period::latest()->first();
+            }
+
+            // 4. Handle organization_user dan wallet
+            if ($this->existingOrganizationUserId) {
+                // Update existing organization_user dan wallet
+                $organizationUser = OrganizationUser::find($this->existingOrganizationUserId);
+                $organizationUser->update([
+                    'user_id' => $this->selectedUserId,
+                ]);
+
+                if ($this->existingWalletId) {
+                    Wallet::where('id', $this->existingWalletId)->update([
+                        'bank_name' => $this->bank_name,
+                        'account_name' => $this->account_name,
+                        'account_number' => $this->account_number,
+                        'balance' => $this->balance,
+                    ]);
+                }
+            } else {
+                // Create new wallet and organization_user
+                $wallet = Wallet::create([
+                    'period_id' => $activePeriod->id,
+                    'bank_name' => $this->bank_name,
+                    'account_name' => $this->account_name,
+                    'account_number' => $this->account_number,
+                    'balance' => $this->balance,
+                ]);
+
+                OrganizationUser::create([
+                    'organization_id' => $organization->id,
+                    'user_id' => $this->selectedUserId,
+                    'wallet_id' => $wallet->id,
+                ]);
+            }
+        });
+
+        $this->showModal = false;
+        $this->resetForm();
+        $this->dispatch('notify', message: 'Lembaga berhasil diperbarui!', type: 'success');
+    }
+
+    public function confirmDelete($id)
+    {
+        $this->deletingOrganizationId = $id;
+        $this->showDeleteModal = true;
+    }
+
+    public function delete()
+    {
+        if (!$this->deletingOrganizationId) {
+            return;
+        }
+
+        $organization = Organization::find($this->deletingOrganizationId);
+
+        if ($organization) {
+            $organization->delete();
+            $this->dispatch('notify', message: 'Lembaga berhasil dihapus!', type: 'success');
+        }
+
+        $this->showDeleteModal = false;
+        $this->deletingOrganizationId = null;
     }
 
     public function render()
@@ -179,12 +324,22 @@ class TabContentLembaga extends Component
         $periods = Period::orderBy('name')->get();
 
         $lembagaTypes = Organization::select('lembaga')->distinct()->orderBy('lembaga')->pluck('lembaga');
-        
-        $availableBendaharas = User::where('role', 'Bendahara')
-            ->whereDoesntHave('organizationUser')
+
+        // Get available bendaharas - include current one when in edit mode
+        $availableBendaharasQuery = User::where('role', 'Bendahara')
             ->select('id', 'username', 'email')
-            ->orderBy('username')
-            ->get();
+            ->orderBy('username');
+
+        if ($this->editMode && $this->selectedUserId) {
+            $availableBendaharasQuery->where(function ($q) {
+                $q->whereDoesntHave('organizationUser')
+                    ->orWhere('id', $this->selectedUserId);
+            });
+        } else {
+            $availableBendaharasQuery->whereDoesntHave('organizationUser');
+        }
+
+        $availableBendaharas = $availableBendaharasQuery->get();
 
         return view('livewire.master-data.tab-content-lembaga', [
             'organizations' => $organizations,

@@ -16,10 +16,10 @@
             class="px-6 py-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
             <div>
                 <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
-                    Kegiatan Lembaga
+                    Kegiatan Organisasi
                 </h2>
                 <div class="flex items-center gap-2 mt-1">
-                    <span class="text-sm text-gray-600 dark:text-gray-400">Lembaga:</span>
+                    <span class="text-sm text-gray-600 dark:text-gray-400">Organisasi:</span>
                     <span x-text="orgName" class="text-sm font-medium text-blue-600 dark:text-blue-400"></span>
                 </div>
             </div>

@@ -12,7 +12,7 @@
                     <tr class="border-b border-slate-200 dark:border-slate-700 text-sm text-black dark:text-white">
                         <th class="px-3 py-2 text-left">Kegiatan</th>
                         <th class="px-3 py-2 text-left">Organisasi</th>
-                        <th class="px-3 py-2 text-left">Lembaga</th>
+                        <th class="px-3 py-2 text-left">Fakultas</th>
                         <th class="px-3 py-2 text-left">Tanggal Selesai</th>
                         <th class="px-3 py-2 text-left">Tenggat LPJ</th>
                         <th class="px-3 py-2 text-left">Terlambat</th>

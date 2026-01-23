@@ -2,11 +2,11 @@
     <div class="p-6 border-b border-gray-200">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-white">Lembaga</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2 dark:text-white">Organisasi</label>
                 <div class="relative">
                     <select wire:model.live="organization_id"
                         class="w-full dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition appearance-none text-sm bg-white cursor-pointer">
-                        <option value="">Semua Lembaga</option>
+                        <option value="">Semua Organisasi</option>
                         @foreach ($organizations as $organization)
                             <option value="{{ $organization->id }}">{{ $organization->name }}</option>
                         @endforeach
@@ -116,7 +116,7 @@
                         No</th>
                     <th
                         class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">
-                        Lembaga</th>
+                        Organisasi</th>
                     <th
                         class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">
                         Kegiatan</th>

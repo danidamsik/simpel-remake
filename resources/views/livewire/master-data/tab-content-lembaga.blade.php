@@ -4,8 +4,8 @@
 
     <div class="mb-6 flex justify-between items-end">
         <div>
-            <h2 class="text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-100">Data Lembaga</h2>
-            <p class="text-gray-600 dark:text-gray-300 text-sm">Kelola informasi lembaga dan bendahara</p>
+            <h2 class="text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-100">Data Organisasi</h2>
+            <p class="text-gray-600 dark:text-gray-300 text-sm">Kelola informasi organisasi dan bendahara</p>
         </div>
         <button
             @click="
@@ -19,13 +19,18 @@
                 $wire.account_name = '';
                 $wire.account_number = '';
                 $wire.balance = 0;
+                $wire.editMode = false;
+                $wire.editingOrganizationId = null;
+                $wire.existingOrganizationUserId = null;
+                $wire.existingWalletId = null;
+                $wire.existingLogoPath = null;
                 $wire.showModal = true;
             "
             class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm text-sm font-medium transition-colors flex items-center gap-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
-            Tambah Lembaga
+            Tambah Organisasi
         </button>
     </div>
 
@@ -50,7 +55,7 @@
         <div class="w-full sm:w-48">
             <select wire:model.live="filterLembaga"
                 class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
-                <option value="">Semua Lembaga</option>
+                <option value="">Semua Fakultas</option>
                 @foreach ($lembagaTypes as $type)
                     <option value="{{ $type }}">{{ $type }}</option>
                 @endforeach
@@ -82,7 +87,7 @@
                         Nama</th>
                     <th
                         class="py-3 px-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                        Lembaga</th>
+                        Fakultas</th>
                     <th
                         class="py-3 px-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                         Bendahara</th>
@@ -95,6 +100,9 @@
                     <th
                         class="py-3 px-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                         Total Dana</th>
+                    <th
+                        class="py-3 px-4 text-center text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                        Aksi</th>
                 </tr>
             </thead>
 
@@ -153,10 +161,34 @@
                                 {{ 'Rp.' . number_format($walletBalance, 0, ',', '.') }}
                             </div>
                         </td>
+
+                        <td class="py-3 px-4">
+                            <div class="flex items-center justify-center gap-2">
+                                {{-- Edit Button --}}
+                                <button wire:click="edit({{ $org->id }})"
+                                    class="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
+                                    title="Edit">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </button>
+
+                                {{-- Delete Button --}}
+                                <button wire:click="confirmDelete({{ $org->id }})"
+                                    class="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                                    title="Hapus">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="py-8 text-center text-gray-500 dark:text-gray-400">
+                        <td colspan="8" class="py-8 text-center text-gray-500 dark:text-gray-400">
                             <div class="flex flex-col items-center gap-2">
                                 <svg class="w-12 h-12 text-gray-300 dark:text-gray-600" fill="none"
                                     stroke="currentColor" viewBox="0 0 24 24">
@@ -173,4 +205,7 @@
     </div>
     <x-global.pagination :paginator="$organizations" />
     @include('livewire.master-data.component.modal-form-lembaga')
+    <x-global.confirm-modal title="Konfirmasi Hapus Lembaga"
+        message="Apakah Anda yakin ingin menghapus lembaga ini? Data bendahara dan rekening terkait juga akan dihapus. Tindakan ini tidak dapat dibatalkan."
+        confirmAction="delete" />
 </div>

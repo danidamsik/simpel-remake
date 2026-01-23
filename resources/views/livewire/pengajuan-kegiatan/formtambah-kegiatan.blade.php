@@ -91,7 +91,7 @@
                                 <div class="min-w-0">
                                     <p
                                         class="text-[10px] uppercase tracking-wider font-semibold text-blue-600 dark:text-blue-500">
-                                        Lembaga</p>
+                                        Fakultas</p>
                                     <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
                                         {{ $organizationInfo->lembaga }}</p>
                                 </div>

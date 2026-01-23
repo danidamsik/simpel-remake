@@ -3,9 +3,14 @@
     init() {
         this.$watch('$wire.showModal', value => {
             if (value) {
-                // Reset preview saat modal dibuka, wire props direset oleh parent button
+                // Reset preview saat modal dibuka
                 this.photoPreview = null;
                 if (this.$refs.logo) this.$refs.logo.value = '';
+
+                // Set preview dari existing logo jika edit mode
+                if ($wire.editMode && $wire.existingLogoPath) {
+                    this.photoPreview = '/storage/' + $wire.existingLogoPath;
+                }
             }
         })
     },
@@ -26,7 +31,8 @@
         this.photoPreview = null;
         if (this.$refs.logo) this.$refs.logo.value = '';
 
-        // Close modal
+        // Reset form and close modal
+        $wire.resetForm();
         $wire.showModal = false;
     }
 }" x-show="$wire.showModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto"
@@ -52,14 +58,14 @@
             x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             class="inline-block w-full max-w-3xl p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white dark:bg-gray-800 shadow-xl rounded-2xl">
 
-            <!-- Modal Header -->
             <div class="flex items-center justify-between mb-6">
                 <div>
                     <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100" id="modal-title">
-                        Tambah Lembaga Baru
+                        <span x-text="$wire.editMode ? 'Edit Organisasi' : 'Tambah Organisasi Baru'"></span>
                     </h3>
                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                        Lengkapi form di bawah untuk menambahkan lembaga baru
+                        <span
+                            x-text="$wire.editMode ? 'Perbarui informasi organisasi di bawah' : 'Lengkapi form di bawah untuk menambahkan organisasi baru'"></span>
                     </p>
                 </div>
                 <button type="button" @click="$wire.showModal = false"
@@ -72,7 +78,8 @@
             </div>
 
             <!-- Modal Body -->
-            <form wire:submit.prevent="store" class="space-y-6">
+            <form wire:submit.prevent="{{ '$wire.editMode ? \'update\' : \'store\'' }}"
+                x-on:submit.prevent="$wire.editMode ? $wire.update() : $wire.store()" class="space-y-6">
 
                 <!-- Section: Informasi Lembaga -->
                 <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
@@ -81,13 +88,13 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                         </svg>
-                        Informasi Lembaga
+                        Informasi Organisasi
                     </h4>
 
                     <!-- Logo Upload -->
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Logo Lembaga
+                            Logo Organisasi
                         </label>
                         <div class="flex items-center gap-4">
                             <!-- Preview -->
@@ -132,7 +139,7 @@
                         <div>
                             <label for="name"
                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Nama Lembaga <span class="text-red-500">*</span>
+                                Nama Organisasi <span class="text-red-500">*</span>
                             </label>
                             <input type="text" id="name" wire:model="name"
                                 class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all @error('name') border-red-500 @enderror"
@@ -146,7 +153,7 @@
                         <div>
                             <label for="lembaga"
                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Fakultas/Lembaga <span class="text-red-500">*</span>
+                                Fakultas <span class="text-red-500">*</span>
                             </label>
                             <select id="lembaga" wire:model="lembaga"
                                 class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all @error('lembaga') border-red-500 @enderror">
@@ -338,11 +345,11 @@
                         class="px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium">
                         Batal
                     </button>
-                    <button type="submit" wire:loading.attr="disabled" wire:target="store, logo"
+                    <button type="submit" wire:loading.attr="disabled" wire:target="store, update, logo"
                         wire:loading.class="text-transparent transition-none"
                         class="relative px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-                        <span>Simpan</span>
-                        <span wire:loading.flex wire:target="store"
+                        <span x-text="$wire.editMode ? 'Perbarui' : 'Simpan'"></span>
+                        <span wire:loading.flex wire:target="store, update"
                             class="absolute inset-0 items-center justify-center hidden text-white">
                             <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10"

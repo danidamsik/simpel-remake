@@ -53,7 +53,7 @@
 
                             <div class="text-xs space-y-1 text-gray-700 dark:text-gray-300">
                                 <div>
-                                    <b>Lembaga:</b>
+                                    <b>Organisasi:</b>
                                     <span>{{ $kegiatan['nama_organisasi'] }}</span>
                                 </div>
 
