@@ -13,13 +13,15 @@ return new class extends Migration
             $table->string('name');
             $table->enum('lembaga', [
                 'Fakultas Sains & Teknologi',
-                'Fakultas Tarbiyah',
+                'Fakultas Tarbiyah dan Ilmu Keguruan',
                 'Fakultas Syariah',
-                'Fakultas Ushuluddin',
+                'Fakultas Ushuluddin adab dan dakwah',
                 'Fakultas Ekonomi & Bisnis Islam',
+                'Fakultas dakwah dan Komunikasi islam',
+                'Universitas'
             ]);
-            $table->string('number_phone');
-            $table->string('email');
+            $table->string('number_phone')->nullable();
+            $table->string('email')->nullable();
             $table->string('logo_path')->nullable();
             $table->timestamps();
         });
